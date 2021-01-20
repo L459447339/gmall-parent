@@ -1,0 +1,11 @@
+package com.atguigu.product;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class ProductMain8080 {
+    public static void main(String[] args) {
+        SpringApplication.run(ProductMain8080.class,args);
+    }
+}
