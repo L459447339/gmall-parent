@@ -11,5 +11,12 @@
 
     <artifactId>web-util</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.atguigu.gmall</groupId>
+            <artifactId>common-util</artifactId>
+            <version>1.0</version>
+        </dependency>
+    </dependencies>
 
 </project>
