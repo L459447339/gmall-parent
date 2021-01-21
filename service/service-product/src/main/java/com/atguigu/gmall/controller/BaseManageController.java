@@ -65,4 +65,16 @@ public class BaseManageController {
         return Result.ok(baseAttrValueList);
     }
 
+    //修改平台属性
+    @PutMapping("saveAttrInfo")
+    public Result updateAttrInfo(@RequestBody BaseAttrInfo baseAttrInfo){
+        boolean flag = service.updateAttrInfo(baseAttrInfo);
+        if(flag){
+            return Result.ok();
+        }else{
+            return Result.fail();
+        }
+
+    }
+
 }

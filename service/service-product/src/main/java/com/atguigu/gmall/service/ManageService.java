@@ -16,4 +16,6 @@ public interface ManageService {
     boolean saveAttrInfo(BaseAttrInfo baseAttrInfo);
 
     List<BaseAttrValue> getAttrValueList(Long attrId);
+
+    boolean updateAttrInfo(BaseAttrInfo baseAttrInfo);
 }

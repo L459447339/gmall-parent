@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -104,11 +105,11 @@ public class ManageServiceImpl implements ManageService {
                     QueryWrapper<BaseAttrValue> baseAttrValueWrapper = new QueryWrapper<>();
                     baseAttrValueWrapper.eq("attr_id",id);
                     List<BaseAttrValue> baseAttrValueList = baseAttrValueMapper.selectList(baseAttrValueWrapper);
-                    List<BaseAttrValue> attrValueList = attrInfo.getAttrValueList();
-                    attrInfo.setAttrValueList(baseAttrValueList);
-//                    for (BaseAttrValue baseAttrValue : baseAttrValueList) {
-//                        attrValueList.add(baseAttrValue);
-//                    }
+                    List<BaseAttrValue> attrValueList = new ArrayList<>();
+                    for (BaseAttrValue baseAttrValue : baseAttrValueList) {
+                        attrValueList.add(baseAttrValue);
+                    }
+                    attrInfo.setAttrValueList(attrValueList);
                 }
                 return attrInfoList;
             }
@@ -142,5 +143,23 @@ public class ManageServiceImpl implements ManageService {
         queryWrapper.eq("attr_id",attrId);
         List<BaseAttrValue> attrValueList = baseAttrValueMapper.selectList(queryWrapper);
         return attrValueList;
+    }
+
+    //修改平台属性
+    @Override
+    public boolean updateAttrInfo(BaseAttrInfo baseAttrInfo) {
+        List<BaseAttrValue> attrValueList = baseAttrInfo.getAttrValueList();
+        int i = baseAttrInfoMapper.updateById(baseAttrInfo);
+        int j = 0;
+        if(i!=0){
+            for (BaseAttrValue baseAttrValue : attrValueList) {
+                j = baseAttrValueMapper.updateById(baseAttrValue);
+            }
+        }
+        if(i!=0 && j!=0) {
+            return true;
+        }else{
+            return false;
+        }
     }
 }
