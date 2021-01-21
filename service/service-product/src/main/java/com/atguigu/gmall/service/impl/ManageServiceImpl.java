@@ -7,7 +7,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -117,9 +116,31 @@ public class ManageServiceImpl implements ManageService {
       return null;
     }
 
+    //添加平台属性
     @Override
     public boolean saveAttrInfo(BaseAttrInfo baseAttrInfo) {
-
+        List<BaseAttrValue> attrValueList = baseAttrInfo.getAttrValueList();
+        int i = baseAttrInfoMapper.insert(baseAttrInfo);
+        int j = 0;
+        Long id = baseAttrInfo.getId();
+        if(id!=0){
+            for (BaseAttrValue baseAttrValue : attrValueList) {
+                baseAttrValue.setAttrId(id);
+                j = baseAttrValueMapper.insert(baseAttrValue);
+            }
+        }
+        if(i!=0 && j!=0){
+            return true;
+        }
         return false;
+    }
+
+    //根据id查询平台属性
+    @Override
+    public List<BaseAttrValue> getAttrValueList(Long attrId) {
+        QueryWrapper<BaseAttrValue> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("attr_id",attrId);
+        List<BaseAttrValue> attrValueList = baseAttrValueMapper.selectList(queryWrapper);
+        return attrValueList;
     }
 }

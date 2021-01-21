@@ -1,10 +1,7 @@
 package com.atguigu.gmall.controller;
 
 import com.atguigu.common.result.Result;
-import com.atguigu.gmall.product.BaseAttrInfo;
-import com.atguigu.gmall.product.BaseCategory1;
-import com.atguigu.gmall.product.BaseCategory2;
-import com.atguigu.gmall.product.BaseCategory3;
+import com.atguigu.gmall.product.*;
 import com.atguigu.gmall.service.ManageService;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +56,13 @@ public class BaseManageController {
         }else {
             return Result.fail();
         }
+    }
+    
+    //根据id查询平台属性
+    @GetMapping("getAttrValueList/{attrId}")
+    public Result getAttrValueList(@PathVariable("attrId") Long attrId){
+        List<BaseAttrValue> baseAttrValueList = service.getAttrValueList(attrId);
+        return Result.ok(baseAttrValueList);
     }
 
 }
