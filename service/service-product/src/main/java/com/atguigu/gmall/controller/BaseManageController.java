@@ -1,9 +1,10 @@
 package com.atguigu.gmall.controller;
 
 import com.atguigu.common.result.Result;
-import com.atguigu.common.result.ResultCodeEnum;
+import com.atguigu.gmall.product.BaseAttrInfo;
 import com.atguigu.gmall.product.BaseCategory1;
 import com.atguigu.gmall.product.BaseCategory2;
+import com.atguigu.gmall.product.BaseCategory3;
 import com.atguigu.gmall.service.ManageService;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,33 @@ public class BaseManageController {
     public Result getCategory2(@PathVariable("category1Id") Long category1Id){
         List<BaseCategory2> baseCategory2List = service.getCategory2(category1Id);
         return Result.ok(baseCategory2List);
+    }
+
+    //根据二级分类id查询所有三级分类
+    @GetMapping("getCategory3/{category2Id}")
+    public Result getCategory3(@PathVariable("category2Id") Long category2Id){
+        List<BaseCategory3> baseCategory3List = service.getCategory3(category2Id);
+        return Result.ok(baseCategory3List);
+    }
+    
+    //获取分类id平台属性
+    @GetMapping("attrInfoList/{category1Id}/{category2Id}/{category3Id}")
+    public Result attrInfoList(@PathVariable("category1Id") Long category1Id,
+                               @PathVariable("category2Id") Long category2Id,
+                               @PathVariable("category3Id") Long category3Id){
+        List<BaseAttrInfo> baseAttrInfoList = service.attrInfoList(category1Id,category2Id,category3Id);
+        return Result.ok(baseAttrInfoList);
+    }
+
+    //添加平台属性
+    @PostMapping("saveAttrInfo")
+    public Result saveAttrInfo(@RequestBody BaseAttrInfo baseAttrInfo){
+        boolean flag = service.saveAttrInfo(baseAttrInfo);
+        if(flag){
+            return Result.ok();
+        }else {
+            return Result.fail();
+        }
     }
 
 }
