@@ -1,7 +1,9 @@
 package com.atguigu.gmall.controller;
 
 import com.atguigu.common.result.Result;
+import com.atguigu.gmall.bean.BaseTrademark;
 import com.atguigu.gmall.bean.SpuInfo;
+import com.atguigu.gmall.bean.SpuSaleAttr;
 import com.atguigu.gmall.service.SpuService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
@@ -33,8 +35,29 @@ public class SpuController {
         map.put("size",iPage.getSize());
         map.put("current",iPage.getCurrent());
         map.put("pages",iPage.getPages());
-
         return Result.ok(map);
     }
+
+    //获取销售属性
+    @GetMapping("baseSaleAttrList")
+    public Result baseSaleAttrList(){
+        List<SpuSaleAttr> spuSaleAttrs = service.baseSaleAttrList();
+        return Result.ok(spuSaleAttrs);
+    }
+
+    //获取品牌属性
+    @GetMapping("baseTrademark/getTrademarkList")
+    public Result getTrademarkList(){
+        List<BaseTrademark> baseTrademarks = service.getTrademarkList();
+        return Result.ok(baseTrademarks);
+    }
+
+    //添加spu
+    @PostMapping("saveSpuInfo")
+    public Result saveSpuInfo(@RequestBody SpuInfo spuInfo){
+        service.saveSpuInfo(spuInfo);
+        return Result.ok();
+    }
+
 
 }

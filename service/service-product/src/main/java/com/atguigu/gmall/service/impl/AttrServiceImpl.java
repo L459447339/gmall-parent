@@ -2,10 +2,14 @@ package com.atguigu.gmall.service.impl;
 
 import com.atguigu.gmall.bean.BaseAttrInfo;
 import com.atguigu.gmall.bean.BaseAttrValue;
+import com.atguigu.gmall.bean.BaseTrademark;
 import com.atguigu.gmall.mapper.BaseAttrInfoMapper;
 import com.atguigu.gmall.mapper.BaseAttrValueMapper;
+import com.atguigu.gmall.mapper.BaseTrademarkMapper;
 import com.atguigu.gmall.service.AttrService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +25,8 @@ public class AttrServiceImpl implements AttrService {
     @Autowired
     private BaseAttrValueMapper baseAttrValueMapper;
 
+    @Autowired
+    private BaseTrademarkMapper baseTrademarkMapper;
 
     //获取分类id的平台属性
     @Override
@@ -120,5 +126,14 @@ public class AttrServiceImpl implements AttrService {
         queryWrapper.eq("attr_id",attrId);
         List<BaseAttrValue> attrValueList = baseAttrValueMapper.selectList(queryWrapper);
         return attrValueList;
+    }
+
+    @Override
+    public IPage<BaseTrademark> baseTrademark(Long page, Long limit) {
+
+        IPage<BaseTrademark> iPage = new Page<>(page,limit);
+
+        IPage<BaseTrademark> iPage1 = baseTrademarkMapper.selectPage(iPage, null);
+        return iPage1;
     }
 }
