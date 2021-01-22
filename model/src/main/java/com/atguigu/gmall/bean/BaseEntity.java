@@ -1,4 +1,4 @@
-package com.atguigu.gmall.base;
+package com.atguigu.gmall.bean;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;

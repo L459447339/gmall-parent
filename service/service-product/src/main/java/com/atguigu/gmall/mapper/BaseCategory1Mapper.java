@@ -1,6 +1,6 @@
-package com.atguigu.gmall.dao;
+package com.atguigu.gmall.mapper;
 
-import com.atguigu.gmall.product.BaseCategory1;
+import com.atguigu.gmall.bean.BaseCategory1;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 

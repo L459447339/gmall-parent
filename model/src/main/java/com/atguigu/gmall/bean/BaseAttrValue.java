@@ -1,6 +1,5 @@
-package com.atguigu.gmall.product;
+package com.atguigu.gmall.bean;
 
-import com.atguigu.gmall.base.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;

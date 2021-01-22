@@ -1,8 +1,10 @@
 package com.atguigu.gmall.service.impl;
 
-import com.atguigu.gmall.dao.*;
-import com.atguigu.gmall.product.*;
-import com.atguigu.gmall.service.ManageService;
+import com.atguigu.gmall.bean.BaseAttrInfo;
+import com.atguigu.gmall.bean.BaseAttrValue;
+import com.atguigu.gmall.mapper.BaseAttrInfoMapper;
+import com.atguigu.gmall.mapper.BaseAttrValueMapper;
+import com.atguigu.gmall.service.AttrService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,16 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class ManageServiceImpl implements ManageService {
-
-    @Autowired
-    private BaseCategory1Mapper baseCategory1Mapper;
-
-    @Autowired
-    private BaseCategory2Mapper baseCategory2Mapper;
-
-    @Autowired
-    private BaseCategory3Mapper baseCategory3Mapper;
+public class AttrServiceImpl implements AttrService {
 
     @Autowired
     private BaseAttrInfoMapper baseAttrInfoMapper;
@@ -28,28 +21,6 @@ public class ManageServiceImpl implements ManageService {
     @Autowired
     private BaseAttrValueMapper baseAttrValueMapper;
 
-    //查询所有一级分类
-    @Override
-    public List<BaseCategory1> getCategory1() {
-        List<BaseCategory1> baseCategory1List = baseCategory1Mapper.selectList(null);
-        return baseCategory1List;
-    }
-
-    //根据一级分类id查询所有二级分类
-    @Override
-    public List<BaseCategory2> getCategory2(Long category1Id) {
-        QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("category1_id",category1Id);
-        return baseCategory2Mapper.selectList(queryWrapper);
-    }
-
-    //根据二级分类id查询所有三级分类
-    @Override
-    public List<BaseCategory3> getCategory3(Long category2Id) {
-        QueryWrapper<BaseCategory3> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("category2_id",category2Id);
-        return baseCategory3Mapper.selectList(queryWrapper);
-    }
 
     //获取分类id的平台属性
     @Override
@@ -114,26 +85,32 @@ public class ManageServiceImpl implements ManageService {
                 return attrInfoList;
             }
         }
-      return null;
+        return null;
     }
 
-    //添加平台属性
+    //添加或修改平台属性
     @Override
     public boolean saveAttrInfo(BaseAttrInfo baseAttrInfo) {
-        List<BaseAttrValue> attrValueList = baseAttrInfo.getAttrValueList();
-        int i = baseAttrInfoMapper.insert(baseAttrInfo);
-        int j = 0;
         Long id = baseAttrInfo.getId();
-        if(id!=0){
+        if(id!=null && id>-1) {
+            //修改方法
+            QueryWrapper<BaseAttrValue> attrValueWrapper = new QueryWrapper<>();
+            attrValueWrapper.eq("attr_id",id);
+            baseAttrValueMapper.delete(attrValueWrapper);
+        }
+        else {
+            //添加方法
+            baseAttrInfoMapper.insert(baseAttrInfo);
+            id=baseAttrInfo.getId();
+        }
+        List<BaseAttrValue> attrValueList = baseAttrInfo.getAttrValueList();
+        if(attrValueList!=null && attrValueList.size()>0){
             for (BaseAttrValue baseAttrValue : attrValueList) {
                 baseAttrValue.setAttrId(id);
-                j = baseAttrValueMapper.insert(baseAttrValue);
+                baseAttrValueMapper.insert(baseAttrValue);
             }
         }
-        if(i!=0 && j!=0){
-            return true;
-        }
-        return false;
+        return true;
     }
 
     //根据id查询平台属性
@@ -143,23 +120,5 @@ public class ManageServiceImpl implements ManageService {
         queryWrapper.eq("attr_id",attrId);
         List<BaseAttrValue> attrValueList = baseAttrValueMapper.selectList(queryWrapper);
         return attrValueList;
-    }
-
-    //修改平台属性
-    @Override
-    public boolean updateAttrInfo(BaseAttrInfo baseAttrInfo) {
-        List<BaseAttrValue> attrValueList = baseAttrInfo.getAttrValueList();
-        int i = baseAttrInfoMapper.updateById(baseAttrInfo);
-        int j = 0;
-        if(i!=0){
-            for (BaseAttrValue baseAttrValue : attrValueList) {
-                j = baseAttrValueMapper.updateById(baseAttrValue);
-            }
-        }
-        if(i!=0 && j!=0) {
-            return true;
-        }else{
-            return false;
-        }
     }
 }

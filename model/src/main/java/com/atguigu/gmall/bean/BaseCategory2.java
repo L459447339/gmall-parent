@@ -1,13 +1,10 @@
-package com.atguigu.gmall.product;
+package com.atguigu.gmall.bean;
 
-import com.atguigu.gmall.base.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-
-import java.io.Serializable;
 
 @Data
 @ApiModel(description = "商品二级分类")
