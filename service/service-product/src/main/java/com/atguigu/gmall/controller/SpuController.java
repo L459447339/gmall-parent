@@ -1,6 +1,7 @@
 package com.atguigu.gmall.controller;
 
 import com.atguigu.common.result.Result;
+import com.atguigu.gmall.bean.BaseSaleAttr;
 import com.atguigu.gmall.bean.BaseTrademark;
 import com.atguigu.gmall.bean.SpuInfo;
 import com.atguigu.gmall.bean.SpuSaleAttr;
@@ -41,7 +42,7 @@ public class SpuController {
     //获取销售属性
     @GetMapping("baseSaleAttrList")
     public Result baseSaleAttrList(){
-        List<SpuSaleAttr> spuSaleAttrs = service.baseSaleAttrList();
+        List<BaseSaleAttr> spuSaleAttrs = service.baseSaleAttrList();
         return Result.ok(spuSaleAttrs);
     }
 

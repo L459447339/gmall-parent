@@ -1,5 +1,6 @@
 package com.atguigu.gmall.service;
 
+import com.atguigu.gmall.bean.BaseSaleAttr;
 import com.atguigu.gmall.bean.BaseTrademark;
 import com.atguigu.gmall.bean.SpuInfo;
 import com.atguigu.gmall.bean.SpuSaleAttr;
@@ -11,7 +12,7 @@ import java.util.List;
 public interface SpuService {
     IPage<SpuInfo> getSpuInfo(Long page, Long limit, Long category3Id);
 
-    List<SpuSaleAttr> baseSaleAttrList();
+    List<BaseSaleAttr> baseSaleAttrList();
 
     List<BaseTrademark> getTrademarkList();
 

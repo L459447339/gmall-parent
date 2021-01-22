@@ -30,6 +30,9 @@ public class SpuServiceImpl implements SpuService {
     @Autowired
     private SpuSaleAttrValueMapper spuSaleAttrValueMapper;
 
+    @Autowired
+    private BaseSaleAttrMapper baseSaleAttrMapper;
+
     //分页查询spu
     @Override
     public IPage<SpuInfo> getSpuInfo(Long page, Long limit, Long category3Id) {
@@ -43,9 +46,9 @@ public class SpuServiceImpl implements SpuService {
 
     //查询所有销售属性
     @Override
-    public List<SpuSaleAttr> baseSaleAttrList() {
-        List<SpuSaleAttr> spuSaleAttrs = spuSaleAttrMapper.selectList(null);
-        return spuSaleAttrs;
+    public List<BaseSaleAttr> baseSaleAttrList() {
+        List<BaseSaleAttr> baseSaleAttrs = baseSaleAttrMapper.selectList(null);
+        return baseSaleAttrs;
     }
 
     //查询所有品牌属性
@@ -81,7 +84,7 @@ public class SpuServiceImpl implements SpuService {
                 if(spuSaleAttrValueList!=null && spuSaleAttrValueList.size()>0){
                     for (SpuSaleAttrValue spuSaleAttrValue : spuSaleAttrValueList) {
                         spuSaleAttrValue.setSpuId(spuInfoId);
-                        spuSaleAttrValue.setBaseSaleAttrId(spuSaleAttrId);
+                        spuSaleAttrValue.setSaleAttrName(spuSaleAttr.getSaleAttrName());
                         spuSaleAttrValueMapper.insert(spuSaleAttrValue);
 
                     }
