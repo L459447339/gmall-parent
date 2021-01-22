@@ -83,6 +83,7 @@ public class SpuServiceImpl implements SpuService {
                         spuSaleAttrValue.setSpuId(spuInfoId);
                         spuSaleAttrValue.setBaseSaleAttrId(spuSaleAttrId);
                         spuSaleAttrValueMapper.insert(spuSaleAttrValue);
+
                     }
                 }
             }
