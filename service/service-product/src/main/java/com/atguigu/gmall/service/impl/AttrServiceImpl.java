@@ -98,7 +98,7 @@ public class AttrServiceImpl implements AttrService {
     @Override
     public boolean saveAttrInfo(BaseAttrInfo baseAttrInfo) {
         Long id = baseAttrInfo.getId();
-        if(id!=null && id>-1) {
+        if(id!=null && id>0) {
             //修改方法
             QueryWrapper<BaseAttrValue> attrValueWrapper = new QueryWrapper<>();
             attrValueWrapper.eq("attr_id",id);
@@ -119,7 +119,7 @@ public class AttrServiceImpl implements AttrService {
         return true;
     }
 
-    //根据id查询平台属性
+    //根据平台属性id查询平台属性值
     @Override
     public List<BaseAttrValue> getAttrValueList(Long attrId) {
         QueryWrapper<BaseAttrValue> queryWrapper = new QueryWrapper<>();
@@ -127,7 +127,7 @@ public class AttrServiceImpl implements AttrService {
         List<BaseAttrValue> attrValueList = baseAttrValueMapper.selectList(queryWrapper);
         return attrValueList;
     }
-
+    // 获得品牌分页的列表
     @Override
     public IPage<BaseTrademark> baseTrademark(Long page, Long limit) {
 

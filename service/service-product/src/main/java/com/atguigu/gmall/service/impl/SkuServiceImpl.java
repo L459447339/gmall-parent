@@ -34,6 +34,7 @@ public class SkuServiceImpl implements SkuService {
 
     @Autowired
     private SkuSaleAttrValueMapper skuSaleAttrValueMapper;
+
     //显示spu图片信息
     @Override
     public List<SpuImage> spuImageList(Long spuId) {
@@ -42,7 +43,8 @@ public class SkuServiceImpl implements SkuService {
         List<SpuImage> spuImages = spuImageMapper.selectList(wrapper);
         return spuImages;
     }
-    //显示spu销售属性
+
+    //显示spu销售属性及属性值
     @Override
     public List<SpuSaleAttr> spuSaleAttrList(Long spuId) {
         QueryWrapper<SpuSaleAttr> wrapper = new QueryWrapper<>();
@@ -72,7 +74,7 @@ public class SkuServiceImpl implements SkuService {
                 skuImageMapper.insert(skuImage);
             }
         }
-        //添加sku销售属性
+        //添加sku平台属性
         List<SkuAttrValue> skuAttrValueList = skuInfo.getSkuAttrValueList();
         if(skuAttrValueList!=null && skuAttrValueList.size()>0){
             for (SkuAttrValue skuAttrValue : skuAttrValueList) {
@@ -80,7 +82,7 @@ public class SkuServiceImpl implements SkuService {
                 skuAttrValueMapper.insert(skuAttrValue);
             }
         }
-        //添加sku销售属性值
+        //添加sku销售属性
         List<SkuSaleAttrValue> skuSaleAttrValueList = skuInfo.getSkuSaleAttrValueList();
         if(skuSaleAttrValueList!=null && skuSaleAttrValueList.size()>0){
             for (SkuSaleAttrValue skuSaleAttrValue : skuSaleAttrValueList) {
@@ -107,6 +109,7 @@ public class SkuServiceImpl implements SkuService {
             skuInfo.setIsSale(1);
         }
         skuInfoMapper.updateById(skuInfo);
+        //同步搜索引擎
     }
 
     //下架
@@ -117,5 +120,6 @@ public class SkuServiceImpl implements SkuService {
             skuInfo.setIsSale(0);
         }
         skuInfoMapper.updateById(skuInfo);
+        //同步搜索引擎
     }
 }

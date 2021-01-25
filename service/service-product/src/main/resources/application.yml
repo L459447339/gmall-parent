@@ -9,7 +9,7 @@ spring:
     username: root
     password: root
   application:
-    name: service-gmall
+    name: service-product
 
 #mybatis-plus
 mybatis-plus:

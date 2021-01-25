@@ -19,10 +19,12 @@ public class FdfsController {
 
     @PostMapping("fileUpload")
     public Result fileUpload(@RequestParam("file") MultipartFile file){
-        String url = "192.168.200.128:8080";
+        //nginx端口号是8080
+        String url = "http://192.168.200.128:8080";
+        //通过类加载器读取配置文件信息
         String path = FdfsController.class.getClassLoader().getResource("tracker.conf").getPath();
-        //加载fdfs配置信息
         try {
+            //加载fdfs配置信息
             ClientGlobal.init(path);
         } catch (IOException e) {
             e.printStackTrace();
@@ -48,11 +50,10 @@ public class FdfsController {
         } catch (MyException e) {
             e.printStackTrace();
         }
+        //拼接文件url地址
         for (String jpg : jpgs) {
             url = url + "/" + jpg;
         }
-
         return Result.ok(url);
     }
-
 }
