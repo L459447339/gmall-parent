@@ -21,6 +21,9 @@ public class SkuServiceImpl implements SkuService {
     private SpuSaleAttrMapper spuSaleAttrMapper;
 
     @Autowired
+    private SpuSaleAttrValueMapper spuSaleAttrValueMapper;
+
+    @Autowired
     private SkuInfoMapper skuInfoMapper;
 
     @Autowired
@@ -31,7 +34,7 @@ public class SkuServiceImpl implements SkuService {
 
     @Autowired
     private SkuSaleAttrValueMapper skuSaleAttrValueMapper;
-
+    //显示spu图片信息
     @Override
     public List<SpuImage> spuImageList(Long spuId) {
         QueryWrapper<SpuImage> wrapper = new QueryWrapper<>();
@@ -39,12 +42,19 @@ public class SkuServiceImpl implements SkuService {
         List<SpuImage> spuImages = spuImageMapper.selectList(wrapper);
         return spuImages;
     }
-
+    //显示spu销售属性
     @Override
     public List<SpuSaleAttr> spuSaleAttrList(Long spuId) {
         QueryWrapper<SpuSaleAttr> wrapper = new QueryWrapper<>();
         wrapper.eq("spu_id",spuId);
         List<SpuSaleAttr> spuSaleAttrs = spuSaleAttrMapper.selectList(wrapper);
+        for (SpuSaleAttr spuSaleAttr : spuSaleAttrs) {
+            QueryWrapper<SpuSaleAttrValue> attrValueWrapper = new QueryWrapper<>();
+            attrValueWrapper.eq("spu_id",spuId);
+            attrValueWrapper.eq("base_sale_attr_id",spuSaleAttr.getBaseSaleAttrId());
+            List<SpuSaleAttrValue> spuSaleAttrValues = spuSaleAttrValueMapper.selectList(attrValueWrapper);
+            spuSaleAttr.setSpuSaleAttrValueList(spuSaleAttrValues);
+        }
         return spuSaleAttrs;
     }
 
