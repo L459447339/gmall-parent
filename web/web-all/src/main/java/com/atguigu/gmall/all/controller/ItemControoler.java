@@ -1,30 +1,30 @@
 package com.atguigu.gmall.all.controller;
 
+import com.atguigu.gmall.item.client.ItemFenignClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class ItemControoler {
 
-    @RequestMapping("test")
-    public String test(Model model, HttpServletRequest request, HttpSession session){
-        model.addAttribute("hello","hello thymeleaf");
-        request.setAttribute("test",12345);
-        session.setAttribute("sessionVal","hello session");
+    @Autowired
+    private ItemFenignClient itemFenignClient;
 
-        List<String> list = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            list.add("元素"+i);
-        }
-        model.addAttribute("list",list);
-
-        return "test";
+    @RequestMapping("{skuId}.html")
+    public String index(@PathVariable("skuId") Long skuId, Model model){
+        Map<String,Object> map = itemFenignClient.index(skuId);
+        model.addAllAttributes(map);
+        return "item.index";
     }
 
 }

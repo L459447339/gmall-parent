@@ -10,6 +10,10 @@ spring:
     password: root
   application:
     name: service-product
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.200.128:8848
 
 #mybatis-plus
 mybatis-plus:

@@ -45,7 +45,7 @@
             <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
 
-         服务注册
+
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
