@@ -22,6 +22,8 @@ public class CategoryServiceImpl implements CategoryService {
     @Autowired
     private BaseCategory3Mapper baseCategory3Mapper;
 
+    @Autowired
+    private BaseCategoryViewMapper baseCategoryViewMapper;
 
 
     //查询所有一级分类
@@ -47,6 +49,12 @@ public class CategoryServiceImpl implements CategoryService {
         return baseCategory3Mapper.selectList(queryWrapper);
     }
 
+    @Override
+    public BaseCategoryView getBaseCategoryView(Long categoryId3) {
+        QueryWrapper<BaseCategoryView> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("category3_id",categoryId3);
+        return baseCategoryViewMapper.selectOne(queryWrapper);
+    }
 
 
 }

@@ -13,4 +13,5 @@ public interface CategoryService {
     List<BaseCategory3> getCategory3(Long category2Id);
 
 
+    BaseCategoryView getBaseCategoryView(Long categoryId3);
 }

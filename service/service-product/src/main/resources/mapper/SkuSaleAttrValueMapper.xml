@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.gmall.mapper.SkuSaleAttrValueMapper">
+
+    <select id="getSpuSaleAttrListCheckBySku" resultMap="getSpuSaleAttrListCheckBySkuMap">
+        select sa.id as attr_id,sv.id as attr_value_id,sa.* ,sv.*,if(skv.sku_id,1,0) as is_checked
+        from spu_sale_attr sa
+        inner join spu_sale_attr_value sv
+        on sa.spu_id=sv.spu_id and sa.base_sale_attr_id=sv.base_sale_attr_id and sa.spu_id=#{spuId}
+        left join sku_sale_attr_value skv
+        on skv.sale_attr_value_id=sv.id and skv.sku_id=#{skuId}
+        order by sa.id,sv.id
+    </select>
+
+    <resultMap id="getSpuSaleAttrListCheckBySkuMap" type="com.atguigu.gmall.bean.SpuSaleAttr" autoMapping="true">
+        <id column="attr_id" property="id"></id>
+        <collection property="spuSaleAttrValueList" autoMapping="true" ofType="com.atguigu.gmall.bean.SpuSaleAttrValue">
+            <id column="attr_value_id" property="id"></id>
+        </collection>
+    </resultMap>
+
+    <select id="getValuesSkuJson" resultType="java.util.Map">
+        SELECT
+            GROUP_CONCAT( sale_attr_value_id ORDER BY sale_attr_value_id SEPARATOR "|" ) as group_coucat,
+            sku_id
+        FROM
+            sku_sale_attr_value skv
+        WHERE
+            skv.spu_id = #{spuId}
+        GROUP BY
+            skv.sku_id
+    </select>
+
+</mapper>

@@ -1,11 +1,9 @@
 package com.atguigu.gmall.service;
 
-import com.atguigu.gmall.bean.SkuImage;
-import com.atguigu.gmall.bean.SkuInfo;
-import com.atguigu.gmall.bean.SpuImage;
-import com.atguigu.gmall.bean.SpuSaleAttr;
+import com.atguigu.gmall.bean.*;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -22,5 +20,12 @@ public interface SkuService {
 
     void cancelSale(Long skuId);
 
-    Map<String, Object> getItem(Long skuId);
+
+    SkuInfo getSkuInfo(Long skuId);
+
+    BigDecimal getPrice(Long skuId);
+
+    List<SpuSaleAttr> getSpuSaleAttrListCheckBySku(Long skuId,Long spuId);
+
+    List<Map<String, Object>> getValuesSkuJson(Long skuId);
 }

@@ -1,7 +1,7 @@
 spring:
   thymeleaf:
     cache: false
-    mode: HTML5
+    mode: LEGACYHTML5
   cloud:
     nacos:
       discovery:

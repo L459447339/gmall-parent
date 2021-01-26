@@ -149,14 +149,14 @@
                     <div id="specification" class="summary-wrap clearfix">
 
 
-                        <dl v-for="spuSaleAttr in spuSaleAttrList" :key="spuSaleAttr?.id">
+                        <dl v-for="spuSaleAttr in spuSaleAttrList" :key="spuSaleAttr.id">
                             <dt>
                             <div class="fl title">
-                                <i>{{spuSaleAttr?.saleAttrName}}</i>
+                                <i>{{spuSaleAttr.saleAttrName}}</i>
                             </div>
                             </dt>
-                            <dd v-for="spuSaleAttrValue in spuSaleAttr?.spuSaleAttrValueList" :key="spuSaleAttrValue?.id" @click="spuSaleAttrFun(spuSaleAttr?.index, spuSaleAttrValue?.id)">
-                                <a href="javascript:;" :class="{'selected':spuSaleAttrValue?.isChecked == 1}">{{spuSaleAttrValue?.saleAttrValueName}}<span title="点击取消选择">&nbsp;</span></a>
+                            <dd v-for="spuSaleAttrValue in spuSaleAttr.spuSaleAttrValueList" :key="spuSaleAttrValue.id" @click="spuSaleAttrFun(spuSaleAttr.index, spuSaleAttrValue.id)">
+                                <a href="javascript:;" :class="{'selected':spuSaleAttrValue.isChecked == 1}">{{spuSaleAttrValue.saleAttrValueName}}<span title="点击取消选择">&nbsp;</span></a>
                             </dd>
                         </dl>
 
@@ -1021,10 +1021,10 @@
             init() {
                 debugger
                 this.spuSaleAttrList.forEach((spuSaleAttr, index) => {
-                    spuSaleAttr?.index = index
-                    spuSaleAttr?.spuSaleAttrValueList.forEach((spuSaleAttrValue) => {
-                        if (spuSaleAttrValue?.isChecked == 1) {
-                            this.selectValuesSkus.push(spuSaleAttrValue?.id)
+                    spuSaleAttr.index = index
+                    spuSaleAttr.spuSaleAttrValueList.forEach((spuSaleAttrValue) => {
+                        if (spuSaleAttrValue.isChecked == 1) {
+                            this.selectValuesSkus.push(spuSaleAttrValue.id)
                         }
                     })
                 })
@@ -1064,12 +1064,12 @@
 
                 //控制销售属性是否选中
                 this.spuSaleAttrList.forEach((spuSaleAttr, i) => {
-                    spuSaleAttr?.spuSaleAttrValueList.forEach((spuSaleAttrValue) => {
+                    spuSaleAttr.spuSaleAttrValueList.forEach((spuSaleAttrValue) => {
                         if (index == i) {
-                            if (spuSaleAttrValueId == spuSaleAttrValue?.id) {
-                                spuSaleAttrValue?.isChecked = 1
+                            if (spuSaleAttrValueId == spuSaleAttrValue.id) {
+                                spuSaleAttrValue.isChecked = 1
                             } else {
-                                spuSaleAttrValue?.isChecked = 0
+                                spuSaleAttrValue.isChecked = 0
                             }
                         }
                     })

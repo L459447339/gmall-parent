@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,9 @@ public class SkuServiceImpl implements SkuService {
 
     @Autowired
     private SkuSaleAttrValueMapper skuSaleAttrValueMapper;
+
+    @Autowired
+    private BaseCategoryViewMapper baseCategoryViewMapper;
 
     //显示spu图片信息
     @Override
@@ -125,23 +129,36 @@ public class SkuServiceImpl implements SkuService {
         //同步搜索引擎
     }
 
+    //获取sku信息和图片信息
     @Override
-    public Map<String, Object> getItem(Long skuId) {
-        Map<String,Object> map = new HashMap<>();
-        //获取sku信息
+    public SkuInfo getSkuInfo(Long skuId) {
         SkuInfo skuInfo = skuInfoMapper.selectById(skuId);
-        //获取sku图片信息
         QueryWrapper<SkuImage> imageQueryWrapper = new QueryWrapper<>();
         imageQueryWrapper.eq("sku_id",skuId);
         List<SkuImage> skuImages = skuImageMapper.selectList(imageQueryWrapper);
         skuInfo.setSkuImageList(skuImages);
-        //获取分类信息
+        return skuInfo;
+    }
 
-        //获取销售属性
+    //获取价格
+    @Override
+    public BigDecimal getPrice(Long skuId) {
+        SkuInfo skuInfo = skuInfoMapper.selectById(skuId);
+        return skuInfo.getPrice();
+    }
 
-        //获取价格信息
+    //获取销售属性及对应的sku销售属性
+    @Override
+    public List<SpuSaleAttr> getSpuSaleAttrListCheckBySku(Long skuId,Long spuId) {
+        List<SpuSaleAttr> spuSaleAttrList = skuSaleAttrValueMapper.getSpuSaleAttrListCheckBySku(skuId,spuId);
+        return spuSaleAttrList;
+    }
 
-        map.put("skuInfo",skuInfo);
-        return map;
+    //获取根据销售属性组合获取sku_id的kv
+    @Override
+    public List<Map<String, Object>> getValuesSkuJson(Long spuId) {
+
+        List<Map<String, Object>> maps = skuSaleAttrValueMapper.getValuesSkuJson(spuId);
+        return maps;
     }
 }
