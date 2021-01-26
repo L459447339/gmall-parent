@@ -7,6 +7,7 @@ import com.atguigu.gmall.bean.SpuSaleAttr;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
 import java.util.List;
+import java.util.Map;
 
 public interface SkuService {
     List<SpuImage> spuImageList(Long spuId);
@@ -20,4 +21,6 @@ public interface SkuService {
     void onSale(Long skuId);
 
     void cancelSale(Long skuId);
+
+    Map<String, Object> getItem(Long skuId);
 }

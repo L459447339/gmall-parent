@@ -9,7 +9,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class SkuServiceImpl implements SkuService {
@@ -121,5 +123,25 @@ public class SkuServiceImpl implements SkuService {
         }
         skuInfoMapper.updateById(skuInfo);
         //同步搜索引擎
+    }
+
+    @Override
+    public Map<String, Object> getItem(Long skuId) {
+        Map<String,Object> map = new HashMap<>();
+        //获取sku信息
+        SkuInfo skuInfo = skuInfoMapper.selectById(skuId);
+        //获取sku图片信息
+        QueryWrapper<SkuImage> imageQueryWrapper = new QueryWrapper<>();
+        imageQueryWrapper.eq("sku_id",skuId);
+        List<SkuImage> skuImages = skuImageMapper.selectList(imageQueryWrapper);
+        skuInfo.setSkuImageList(skuImages);
+        //获取分类信息
+
+        //获取销售属性
+
+        //获取价格信息
+
+        map.put("skuInfo",skuInfo);
+        return map;
     }
 }

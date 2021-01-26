@@ -9,8 +9,6 @@
         <module>service-client</module>
         <module>web</module>
         <module>model</module>
-        <module>web/web-all</module>
-        <module>service-client/service-item-client</module>
     </modules>
 
     <parent>

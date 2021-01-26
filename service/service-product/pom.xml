@@ -13,10 +13,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.atguigu.gmall</groupId>
-            <artifactId>common</artifactId>
-            <version>1.0</version>
+            <groupId>net.oschina.zcx7878</groupId>
+            <artifactId>fastdfs-client-java</artifactId>
         </dependency>
     </dependencies>
-
 </project>

@@ -6,5 +6,7 @@ spring:
     nacos:
       discovery:
         server-addr: 192.168.200.128:8848
+  application:
+    name: web-all
 server:
   port: 8300

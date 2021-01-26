@@ -13,13 +13,10 @@
     <packaging>pom</packaging>
     <modules>
         <module>service-product</module>
+        <module>service-item</module>
     </modules>
 
     <dependencies>
-        <dependency>
-            <groupId>net.oschina.zcx7878</groupId>
-            <artifactId>fastdfs-client-java</artifactId>
-        </dependency>
         <dependency>
             <groupId>com.atguigu.gmall</groupId>
             <artifactId>service-util</artifactId>
@@ -30,6 +27,7 @@
             <artifactId>model</artifactId>
             <version>1.0</version>
         </dependency>
+
     </dependencies>
 
 </project>

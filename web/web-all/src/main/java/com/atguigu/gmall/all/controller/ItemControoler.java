@@ -21,10 +21,10 @@ public class ItemControoler {
     private ItemFenignClient itemFenignClient;
 
     @RequestMapping("{skuId}.html")
-    public String index(@PathVariable("skuId") Long skuId, Model model){
-        Map<String,Object> map = itemFenignClient.index(skuId);
+    public String item(@PathVariable("skuId") Long skuId, Model model){
+        Map<String,Object> map = itemFenignClient.getItem(skuId);
         model.addAllAttributes(map);
-        return "item.index";
+        return "item/index";
     }
 
 }

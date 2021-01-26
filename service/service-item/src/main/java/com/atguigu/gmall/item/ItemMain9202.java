@@ -1,4 +1,4 @@
-package com.atguigu.gmall.all;
+package com.atguigu.gmall.item;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -8,11 +8,11 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
-@ComponentScan({"com.atguigu.gmall"})
+@ComponentScan("com.atguigu.gmall")
+@EnableFeignClients({"com.atguigu.gmall"})
 @EnableDiscoveryClient
-@EnableFeignClients(basePackages= {"com.atguigu.gmall"})
-public class AllMain8300 {
+public class ItemMain9202 {
     public static void main(String[] args) {
-        SpringApplication.run(AllMain8300.class,args);
+        SpringApplication.run(ItemMain9202.class,args);
     }
 }
