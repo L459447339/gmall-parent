@@ -42,7 +42,7 @@ public class ItemApiServiceImpl implements ItemApiService {
         for (Map<String, Object> stringObjectMap : maps) {
             newMap.put((String) stringObjectMap.get("group_coucat"),stringObjectMap.get("sku_id"));
         }
-        map.put("valuesSkuJson", JSON.toJSONString(maps));
+        map.put("valuesSkuJson", JSON.toJSONString(newMap));
         return map;
     }
 }
