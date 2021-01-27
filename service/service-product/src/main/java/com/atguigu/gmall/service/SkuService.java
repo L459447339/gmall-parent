@@ -21,7 +21,7 @@ public interface SkuService {
     void cancelSale(Long skuId);
 
 
-    SkuInfo getSkuInfo(Long skuId);
+    SkuInfo getSkuInfo(Long skuId) throws InterruptedException;
 
     BigDecimal getPrice(Long skuId);
 

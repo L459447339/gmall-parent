@@ -1,15 +1,18 @@
 package com.atguigu.gmall.controller;
 
+import com.atguigu.gmall.aspect.GmallCache;
 import com.atguigu.gmall.bean.BaseCategoryView;
 import com.atguigu.gmall.bean.SkuInfo;
 import com.atguigu.gmall.bean.SpuSaleAttr;
 import com.atguigu.gmall.service.CategoryService;
 import com.atguigu.gmall.service.SkuService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.Cacheable;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -26,9 +29,16 @@ public class ProductApiController {
     @Autowired
     private CategoryService categoryService;
 
+
+
     @GetMapping("getSkuInfo/{skuId}")
     public SkuInfo getSkuInfo(@PathVariable("skuId") Long skuId){
-        return skuService.getSkuInfo(skuId);
+        try {
+            return skuService.getSkuInfo(skuId);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @GetMapping("getBaseCategoryView/{categoryId3}")
@@ -38,6 +48,7 @@ public class ProductApiController {
     }
 
     @GetMapping("getPrice/{skuId}")
+    @GmallCache(key = "sku",type = "str")
     public BigDecimal getPrice(@PathVariable("skuId") Long skuId){
         BigDecimal price = skuService.getPrice(skuId);
         return price;
