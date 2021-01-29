@@ -1,5 +1,6 @@
 package com.atguigu.gmall.service.impl;
 
+import com.atguigu.gmall.aspect.GmallCache;
 import com.atguigu.gmall.bean.*;
 import com.atguigu.gmall.constant.RedisConst;
 import com.atguigu.gmall.mapper.*;
@@ -136,53 +137,50 @@ public class SkuServiceImpl implements SkuService {
 
     //获取sku信息和图片信息
     @Override
+    @GmallCache
     public SkuInfo getSkuInfo(Long skuId) {
-        SkuInfo skuInfo = null;
-        //进入的线程需要拿到分布式锁才能操作
-        String lockVal = UUID.randomUUID().toString() + ":lock";
-        Boolean lockTag = redisTemplate.opsForValue().setIfAbsent("lock", lockVal, 1, TimeUnit.MINUTES);
-        if (lockTag) {
-            //查看缓存中是否有值
-            skuInfo = (SkuInfo) redisTemplate.opsForValue().get(RedisConst.SKUKEY_PREFIX + skuId + RedisConst.SKUKEY_SUFFIX);
-            //没有值就直接去数据库查
-            if (skuInfo == null) {
-                skuInfo = getSkuInfoFromDB(skuId);
-                //将查询到的值同步到redis中,需要判断不为空
-                if (skuInfo != null) {
-                    redisTemplate.opsForValue().set(RedisConst.SKUKEY_PREFIX + skuId + RedisConst.SKUKEY_SUFFIX, skuInfo);
-                }else {
-                    redisTemplate.opsForValue().set(RedisConst.SKUKEY_PREFIX + skuId + RedisConst.SKUKEY_SUFFIX, null,1,TimeUnit.MINUTES);
-                }
-            }
-
-            //使用Lua脚本让判断和释放锁同步执行
-            String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
-            // 设置lua脚本返回的数据类型
-            DefaultRedisScript<Long> redisScript = new DefaultRedisScript<>();
-            // 设置lua脚本返回类型为Long
-            redisScript.setResultType(Long.class);
-            redisScript.setScriptText(script);
-            //第一个参数是Lua脚本，判断第二个参数和第三个参数是否相等，如果相等则将lock锁删除，不相等什么也不做
-            redisTemplate.execute(redisScript, Arrays.asList("lock"), lockVal);// 执行脚本
-//            判断是否为同一把锁
-//            if (redisTemplate.opsForValue().get("lock").equals(lockVal)) {
-//                //释放锁
-//                redisTemplate.delete("lock");
+//        SkuInfo skuInfo = null;
+//        //进入的线程需要拿到分布式锁才能操作
+//        String lockVal = UUID.randomUUID().toString() + ":lock";
+//        Boolean lockTag = redisTemplate.opsForValue().setIfAbsent("lock", lockVal, 1, TimeUnit.MINUTES);
+//        if (lockTag) {
+//            //查看缓存中是否有值
+//            skuInfo = (SkuInfo) redisTemplate.opsForValue().get(RedisConst.SKUKEY_PREFIX + skuId + RedisConst.SKUKEY_SUFFIX);
+//            //没有值就直接去数据库查
+//            if (skuInfo == null) {
+//                skuInfo = getSkuInfoFromDB(skuId);
+//                //将查询到的值同步到redis中,需要判断不为空
+//                if (skuInfo != null) {
+//                    redisTemplate.opsForValue().set(RedisConst.SKUKEY_PREFIX + skuId + RedisConst.SKUKEY_SUFFIX, skuInfo);
+//                }else {
+//                    redisTemplate.opsForValue().set(RedisConst.SKUKEY_PREFIX + skuId + RedisConst.SKUKEY_SUFFIX, null,1,TimeUnit.MINUTES);
+//                }
 //            }
-        } else {
-            //没拿到锁的对象需要进行自旋
-            try {
-                TimeUnit.SECONDS.sleep(2);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            return getSkuInfo(skuId);
-        }
-        return skuInfo;
-    }
-
-    //提取出到数据库查询的方法
-    public SkuInfo getSkuInfoFromDB(Long skuId) {
+//
+//            //使用Lua脚本让判断和释放锁同步执行
+//            String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
+//            // 设置lua脚本返回的数据类型
+//            DefaultRedisScript<Long> redisScript = new DefaultRedisScript<>();
+//            // 设置lua脚本返回类型为Long
+//            redisScript.setResultType(Long.class);
+//            redisScript.setScriptText(script);
+//            //第一个参数是Lua脚本，判断第二个参数和第三个参数是否相等，如果相等则将lock锁删除，不相等什么也不做
+//            redisTemplate.execute(redisScript, Arrays.asList("lock"), lockVal);// 执行脚本
+////            判断是否为同一把锁
+////            if (redisTemplate.opsForValue().get("lock").equals(lockVal)) {
+////                //释放锁
+////                redisTemplate.delete("lock");
+////            }
+//        } else {
+//            //没拿到锁的对象需要进行自旋
+//            try {
+//                TimeUnit.SECONDS.sleep(2);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            return getSkuInfo(skuId);
+//        }
+//        return skuInfo;
         SkuInfo skuInfo = skuInfoMapper.selectById(skuId);
         QueryWrapper<SkuImage> imageQueryWrapper = new QueryWrapper<>();
         imageQueryWrapper.eq("sku_id", skuId);
@@ -190,6 +188,16 @@ public class SkuServiceImpl implements SkuService {
         skuInfo.setSkuImageList(skuImages);
         return skuInfo;
     }
+
+//    //提取出到数据库查询的方法
+//    public SkuInfo getSkuInfoFromDB(Long skuId) {
+//        SkuInfo skuInfo = skuInfoMapper.selectById(skuId);
+//        QueryWrapper<SkuImage> imageQueryWrapper = new QueryWrapper<>();
+//        imageQueryWrapper.eq("sku_id", skuId);
+//        List<SkuImage> skuImages = skuImageMapper.selectList(imageQueryWrapper);
+//        skuInfo.setSkuImageList(skuImages);
+//        return skuInfo;
+//    }
 
     //获取价格
     @Override
@@ -200,6 +208,7 @@ public class SkuServiceImpl implements SkuService {
 
     //获取销售属性及对应的sku销售属性
     @Override
+    @GmallCache
     public List<SpuSaleAttr> getSpuSaleAttrListCheckBySku(Long skuId, Long spuId) {
         List<SpuSaleAttr> spuSaleAttrList = skuSaleAttrValueMapper.getSpuSaleAttrListCheckBySku(skuId, spuId);
         return spuSaleAttrList;
@@ -207,6 +216,7 @@ public class SkuServiceImpl implements SkuService {
 
     //获取根据销售属性组合获取sku_id的kv
     @Override
+    @GmallCache
     public List<Map<String, Object>> getValuesSkuJson(Long spuId) {
         List<Map<String, Object>> maps = skuSaleAttrValueMapper.getValuesSkuJson(spuId);
         return maps;

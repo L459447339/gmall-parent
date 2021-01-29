@@ -48,7 +48,6 @@ public class ProductApiController {
     }
 
     @GetMapping("getPrice/{skuId}")
-    @GmallCache(key = "sku",type = "str")
     public BigDecimal getPrice(@PathVariable("skuId") Long skuId){
         BigDecimal price = skuService.getPrice(skuId);
         return price;
@@ -64,5 +63,4 @@ public class ProductApiController {
     List<Map<String, Object>> getValuesSkuJson(@PathVariable("spuId") Long spuId){
         return skuService.getValuesSkuJson(spuId);
     }
-
 }

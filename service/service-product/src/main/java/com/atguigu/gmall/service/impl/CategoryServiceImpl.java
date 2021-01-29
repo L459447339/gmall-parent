@@ -1,5 +1,6 @@
 package com.atguigu.gmall.service.impl;
 
+import com.atguigu.gmall.aspect.GmallCache;
 import com.atguigu.gmall.bean.*;
 import com.atguigu.gmall.mapper.*;
 import com.atguigu.gmall.service.CategoryService;

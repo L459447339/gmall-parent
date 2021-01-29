@@ -18,8 +18,10 @@ public class ItemControoler {
     //查询商品详情信息
     @RequestMapping("{skuId}.html")
     public String item(@PathVariable("skuId") Long skuId, Model model){
+        long l = System.currentTimeMillis();
         Map<String,Object> map = itemFeignClient.getItem(skuId);
         model.addAllAttributes(map);
+        System.out.println(System.currentTimeMillis() - l+"ms");
         return "item/index";
     }
 
