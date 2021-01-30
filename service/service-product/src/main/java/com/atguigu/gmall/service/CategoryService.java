@@ -1,6 +1,7 @@
 package com.atguigu.gmall.service;
 
 
+import com.alibaba.fastjson.JSONObject;
 import com.atguigu.gmall.bean.*;
 
 import java.util.List;
@@ -14,4 +15,7 @@ public interface CategoryService {
 
 
     BaseCategoryView getBaseCategoryView(Long categoryId3);
+
+    List<JSONObject> getBaseCategoryList();
+
 }

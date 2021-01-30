@@ -8,6 +8,8 @@ import com.atguigu.gmall.service.SkuService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -46,6 +48,9 @@ public class SkuServiceImpl implements SkuService {
 
     @Autowired
     private RedisTemplate redisTemplate;
+
+    @Autowired
+    private RedissonClient redissonClient;
 
     //显示spu图片信息
     @Override
@@ -137,7 +142,7 @@ public class SkuServiceImpl implements SkuService {
 
     //获取sku信息和图片信息
     @Override
-    @GmallCache
+    //@GmallCache
     public SkuInfo getSkuInfo(Long skuId) {
 //        SkuInfo skuInfo = null;
 //        //进入的线程需要拿到分布式锁才能操作
@@ -181,11 +186,18 @@ public class SkuServiceImpl implements SkuService {
 //            return getSkuInfo(skuId);
 //        }
 //        return skuInfo;
-        SkuInfo skuInfo = skuInfoMapper.selectById(skuId);
-        QueryWrapper<SkuImage> imageQueryWrapper = new QueryWrapper<>();
-        imageQueryWrapper.eq("sku_id", skuId);
-        List<SkuImage> skuImages = skuImageMapper.selectList(imageQueryWrapper);
-        skuInfo.setSkuImageList(skuImages);
+        RLock lock = redissonClient.getLock(UUID.randomUUID().toString()+":lock");
+        SkuInfo skuInfo;
+        try {
+            lock.lock(5,TimeUnit.SECONDS);
+            skuInfo = skuInfoMapper.selectById(skuId);
+            QueryWrapper<SkuImage> imageQueryWrapper = new QueryWrapper<>();
+            imageQueryWrapper.eq("sku_id", skuId);
+            List<SkuImage> skuImages = skuImageMapper.selectList(imageQueryWrapper);
+            skuInfo.setSkuImageList(skuImages);
+        } finally {
+            lock.unlock();
+        }
         return skuInfo;
     }
 
@@ -202,13 +214,19 @@ public class SkuServiceImpl implements SkuService {
     //获取价格
     @Override
     public BigDecimal getPrice(Long skuId) {
-        SkuInfo skuInfo = skuInfoMapper.selectById(skuId);
-        return skuInfo.getPrice();
+        RLock lock = redissonClient.getLock(UUID.randomUUID().toString() + "lock");
+        try {
+            lock.lock(5,TimeUnit.SECONDS);
+            SkuInfo skuInfo = skuInfoMapper.selectById(skuId);
+            return skuInfo.getPrice();
+        } finally {
+            lock.unlock();
+        }
     }
 
     //获取销售属性及对应的sku销售属性
     @Override
-    @GmallCache
+    //@GmallCache
     public List<SpuSaleAttr> getSpuSaleAttrListCheckBySku(Long skuId, Long spuId) {
         List<SpuSaleAttr> spuSaleAttrList = skuSaleAttrValueMapper.getSpuSaleAttrListCheckBySku(skuId, spuId);
         return spuSaleAttrList;
@@ -216,7 +234,7 @@ public class SkuServiceImpl implements SkuService {
 
     //获取根据销售属性组合获取sku_id的kv
     @Override
-    @GmallCache
+    //@GmallCache
     public List<Map<String, Object>> getValuesSkuJson(Long spuId) {
         List<Map<String, Object>> maps = skuSaleAttrValueMapper.getValuesSkuJson(spuId);
         return maps;
