@@ -5,6 +5,7 @@ import com.atguigu.gmall.bean.BaseCategoryView;
 import com.atguigu.gmall.bean.SkuInfo;
 import com.atguigu.gmall.bean.SpuSaleAttr;
 import com.atguigu.gmall.item.service.ItemApiService;
+import com.atguigu.gmall.list.client.ListFeignClient;
 import com.atguigu.gmall.product.client.ProductFeignClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,9 @@ public class ItemApiServiceImpl implements ItemApiService {
 
     @Autowired
     private ThreadPoolExecutor threadPoolExecutor;
+
+    @Autowired
+    private ListFeignClient listFeignClient;
     //使用异步编排优化查询商品详情信息
     @Override
     public Map<String, Object> getItem(Long skuId) {
@@ -78,6 +82,8 @@ public class ItemApiServiceImpl implements ItemApiService {
         },threadPoolExecutor);
         CompletableFuture.allOf(completableFutureSkuInfo,completableFutureView,completableFuturePrice,
                 completableFutureAttr,completableFutureSkuJson).join();
+        //访问到item商品详情，将热度值+1
+        listFeignClient.incrHotScore(skuId);
         return map;
     }
 }

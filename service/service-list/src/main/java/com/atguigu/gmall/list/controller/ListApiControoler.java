@@ -83,5 +83,9 @@ public class ListApiControoler {
         listService.cancelSale(skuId);
     }
 
+    @RequestMapping("incrHotScore/{skuId}")
+    void incrHotScore(@PathVariable("skuId") Long skuId){
+        listService.incrHotScore(skuId);
+    }
 
 }
