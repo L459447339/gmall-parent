@@ -1,6 +1,7 @@
 package com.atguigu.gmall.service;
 
 import com.atguigu.gmall.bean.*;
+import com.atguigu.gmall.list.SearchAttr;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
 import java.math.BigDecimal;
@@ -28,4 +29,6 @@ public interface SkuService {
     List<SpuSaleAttr> getSpuSaleAttrListCheckBySku(Long skuId,Long spuId);
 
     List<Map<String, Object>> getValuesSkuJson(Long skuId);
+
+    List<SearchAttr> getSearchAttrList(Long skuId);
 }

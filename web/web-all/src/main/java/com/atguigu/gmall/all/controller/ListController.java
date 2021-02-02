@@ -15,11 +15,14 @@ public class ListController {
     @Autowired
     private ListFeignClient listFeignClient;
 
+    /**
+     * 跳转到首页，分类列表可以通过后台查询，也可以使用静态化展示
+     */
     @RequestMapping("index")
     public String index(Model model){
         List<JSONObject> jsonObjects = listFeignClient.getBaseCategoryList();
         model.addAttribute("list",jsonObjects);
-        return "index/index";
+        return "index";
     }
 
 }

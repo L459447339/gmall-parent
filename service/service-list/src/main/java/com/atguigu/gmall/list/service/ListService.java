@@ -6,4 +6,8 @@ import java.util.List;
 
 public interface ListService {
     List<JSONObject> getBaseCategoryList();
+
+    void onSale(Long skuId);
+
+    void cancelSale(Long skuId);
 }

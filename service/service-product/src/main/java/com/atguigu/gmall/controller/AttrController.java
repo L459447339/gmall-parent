@@ -21,21 +21,21 @@ import java.util.Map;
 public class AttrController {
 
     @Autowired
-    private AttrService service;
+    private AttrService attrService;
 
     //获取分类id平台属性
     @GetMapping("attrInfoList/{category1Id}/{category2Id}/{category3Id}")
     public Result attrInfoList(@PathVariable("category1Id") Long category1Id,
                                @PathVariable("category2Id") Long category2Id,
                                @PathVariable("category3Id") Long category3Id) {
-        List<BaseAttrInfo> baseAttrInfoList = service.attrInfoList(category1Id, category2Id, category3Id);
+        List<BaseAttrInfo> baseAttrInfoList = attrService.attrInfoList(category1Id, category2Id, category3Id);
         return Result.ok(baseAttrInfoList);
     }
 
     //添加或修改平台属性
     @PostMapping("saveAttrInfo")
     public Result saveAttrInfo(@RequestBody BaseAttrInfo baseAttrInfo) {
-        boolean flag = service.saveAttrInfo(baseAttrInfo);
+        boolean flag = attrService.saveAttrInfo(baseAttrInfo);
         if (flag) {
             return Result.ok();
         } else {
@@ -46,7 +46,7 @@ public class AttrController {
     //根据id查询平台属性
     @GetMapping("getAttrValueList/{attrId}")
     public Result getAttrValueList(@PathVariable("attrId") Long attrId) {
-        List<BaseAttrValue> baseAttrValueList = service.getAttrValueList(attrId);
+        List<BaseAttrValue> baseAttrValueList = attrService.getAttrValueList(attrId);
         return Result.ok(baseAttrValueList);
     }
 
@@ -54,7 +54,7 @@ public class AttrController {
     @GetMapping("baseTrademark/{page}/{limit}")
     public Result baseTrademark(@PathVariable("page") Long page,
                                 @PathVariable("limit") Long limit) {
-        IPage<BaseTrademark> iPage = service.baseTrademark(page, limit);
+        IPage<BaseTrademark> iPage = attrService.baseTrademark(page, limit);
         Map<String, Object> map = new HashMap<>();
         map.put("records", iPage.getRecords());
         map.put("total", iPage.getTotal());

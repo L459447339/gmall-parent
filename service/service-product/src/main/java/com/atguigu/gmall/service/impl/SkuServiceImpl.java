@@ -1,18 +1,16 @@
 package com.atguigu.gmall.service.impl;
 
-import com.atguigu.gmall.aspect.GmallCache;
 import com.atguigu.gmall.bean.*;
-import com.atguigu.gmall.constant.RedisConst;
+import com.atguigu.gmall.list.client.ListFeignClient;
+import com.atguigu.gmall.list.SearchAttr;
 import com.atguigu.gmall.mapper.*;
 import com.atguigu.gmall.service.SkuService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import org.redisson.api.RLock;
-import org.redisson.api.RedissonClient;
+import org.redisson.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -51,6 +49,9 @@ public class SkuServiceImpl implements SkuService {
 
     @Autowired
     private RedissonClient redissonClient;
+
+    @Autowired
+    private ListFeignClient listFeignClient;
 
     //显示spu图片信息
     @Override
@@ -127,6 +128,7 @@ public class SkuServiceImpl implements SkuService {
         }
         skuInfoMapper.updateById(skuInfo);
         //同步搜索引擎
+        listFeignClient.onSale(skuId);
     }
 
     //下架
@@ -138,6 +140,7 @@ public class SkuServiceImpl implements SkuService {
         }
         skuInfoMapper.updateById(skuInfo);
         //同步搜索引擎
+        listFeignClient.cancelSale(skuId);
     }
 
     //获取sku信息和图片信息
@@ -186,9 +189,12 @@ public class SkuServiceImpl implements SkuService {
 //            return getSkuInfo(skuId);
 //        }
 //        return skuInfo;
+
+
         RLock lock = redissonClient.getLock(UUID.randomUUID().toString()+":lock");
         SkuInfo skuInfo;
         try {
+            //上分布式锁；如果不指定过期时间，底层看门狗机制将会默认指定30s过期时间，并且任务没执行完会续期；
             lock.lock(5,TimeUnit.SECONDS);
             skuInfo = skuInfoMapper.selectById(skuId);
             QueryWrapper<SkuImage> imageQueryWrapper = new QueryWrapper<>();
@@ -196,6 +202,7 @@ public class SkuServiceImpl implements SkuService {
             List<SkuImage> skuImages = skuImageMapper.selectList(imageQueryWrapper);
             skuInfo.setSkuImageList(skuImages);
         } finally {
+            //释放锁，同一个线程同一把锁
             lock.unlock();
         }
         return skuInfo;
@@ -214,21 +221,22 @@ public class SkuServiceImpl implements SkuService {
     //获取价格
     @Override
     public BigDecimal getPrice(Long skuId) {
-        RLock lock = redissonClient.getLock(UUID.randomUUID().toString() + "lock");
-        try {
-            lock.lock(5,TimeUnit.SECONDS);
             SkuInfo skuInfo = skuInfoMapper.selectById(skuId);
             return skuInfo.getPrice();
-        } finally {
-            lock.unlock();
-        }
     }
 
     //获取销售属性及对应的sku销售属性
     @Override
     //@GmallCache
     public List<SpuSaleAttr> getSpuSaleAttrListCheckBySku(Long skuId, Long spuId) {
-        List<SpuSaleAttr> spuSaleAttrList = skuSaleAttrValueMapper.getSpuSaleAttrListCheckBySku(skuId, spuId);
+        RLock lock = redissonClient.getLock(UUID.randomUUID().toString() + ":lock");
+        List<SpuSaleAttr> spuSaleAttrList;
+        try {
+            lock.lock(5,TimeUnit.SECONDS);
+            spuSaleAttrList = skuSaleAttrValueMapper.getSpuSaleAttrListCheckBySku(skuId, spuId);
+        } finally {
+            lock.unlock();
+        }
         return spuSaleAttrList;
     }
 
@@ -236,7 +244,20 @@ public class SkuServiceImpl implements SkuService {
     @Override
     //@GmallCache
     public List<Map<String, Object>> getValuesSkuJson(Long spuId) {
-        List<Map<String, Object>> maps = skuSaleAttrValueMapper.getValuesSkuJson(spuId);
+        RLock lock = redissonClient.getLock(UUID.randomUUID().toString() + ":lock");
+        List<Map<String, Object>> maps;
+        try {
+            lock.lock(5,TimeUnit.SECONDS);
+            maps = skuSaleAttrValueMapper.getValuesSkuJson(spuId);
+        } finally {
+            lock.unlock();
+        }
         return maps;
+    }
+
+    //查询平台属性id,attrName,attrValueName封装到SearchAttr中
+    @Override
+    public List<SearchAttr> getSearchAttrList(Long skuId) {
+       return skuAttrValueMapper.seleteSearchAttrList(skuId);
     }
 }

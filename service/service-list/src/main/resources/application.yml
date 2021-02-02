@@ -9,7 +9,7 @@ spring:
         server-addr: 192.168.200.128:8848
   elasticsearch:
     rest:
-      uris: 192.168.200.128.8848:9200
+      uris: 192.168.200.128:9200
   redis:
     port: 6379
     host: 192.168.200.128

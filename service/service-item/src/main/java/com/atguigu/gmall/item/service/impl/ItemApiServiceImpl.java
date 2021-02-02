@@ -27,7 +27,7 @@ public class ItemApiServiceImpl implements ItemApiService {
 
     @Autowired
     private ThreadPoolExecutor threadPoolExecutor;
-
+    //使用异步编排优化查询商品详情信息
     @Override
     public Map<String, Object> getItem(Long skuId) {
         Map<String,Object> map = new HashMap<>();

@@ -22,26 +22,26 @@ import java.util.Map;
 public class SkuController {
 
     @Autowired
-    private SkuService service;
+    private SkuService skuService;
 
     //获取Spu图片列表
     @GetMapping("spuImageList/{spuId}")
     public Result spuImageList(@PathVariable("spuId") Long spuId) {
-        List<SpuImage> spuImages = service.spuImageList(spuId);
+        List<SpuImage> spuImages = skuService.spuImageList(spuId);
         return Result.ok(spuImages);
     }
 
     //根据SpuId获取销售属性
     @GetMapping("spuSaleAttrList/{spuId}")
     public Result spuSaleAttrList(@PathVariable("spuId") Long spuId) {
-        List<SpuSaleAttr> spuSaleAttrs = service.spuSaleAttrList(spuId);
+        List<SpuSaleAttr> spuSaleAttrs = skuService.spuSaleAttrList(spuId);
         return Result.ok(spuSaleAttrs);
     }
 
     //添加sku
     @PostMapping("saveSkuInfo")
     public Result saveSkuInfo(@RequestBody SkuInfo skuInfo) {
-        service.saveSkuInfo(skuInfo);
+        skuService.saveSkuInfo(skuInfo);
         return Result.ok();
     }
 
@@ -49,7 +49,7 @@ public class SkuController {
     @GetMapping("list/{page}/{limit}")
     public Result list(@PathVariable("page") Long page,
                        @PathVariable("limit") Long limit) {
-        IPage<SkuInfo> iPage = service.list(page, limit);
+        IPage<SkuInfo> iPage = skuService.list(page, limit);
         Map<String, Object> map = new HashMap<>();
         map.put("records", iPage.getRecords());
         map.put("total", iPage.getTotal());
@@ -62,14 +62,14 @@ public class SkuController {
     //上架
     @GetMapping("onSale/{skuId}")
     public Result onSale(@PathVariable("skuId") Long skuId) {
-        service.onSale(skuId);
+        skuService.onSale(skuId);
         return Result.ok();
     }
 
     //下架
     @GetMapping("cancelSale/{skuId}")
     public Result cancelSale(@PathVariable("skuId") Long skuId) {
-        service.cancelSale(skuId);
+        skuService.cancelSale(skuId);
         return Result.ok();
     }
 }
