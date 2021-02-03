@@ -2,6 +2,8 @@ package com.atguigu.gmall.list.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.atguigu.common.result.Result;
+import com.atguigu.gmall.list.SearchParam;
+import com.atguigu.gmall.list.SearchResponseVo;
 import com.atguigu.gmall.list.service.ListService;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
@@ -15,6 +17,7 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -38,21 +41,24 @@ public class ListApiControoler {
     @RequestMapping("test")
     public Result test() throws IOException {
         //检索请求对象
-//        SearchRequest searchRequest = new SearchRequest();
-//        searchRequest.indices("index1");
-//        searchRequest.types("type1");
-//
-//        //封装dsl语句对象
-//        SearchSourceBuilder source = searchRequest.source();
-//        //dsl语句中的query对象
-//        MatchQueryBuilder queryBuilder = new MatchQueryBuilder("name", "zhang3");
-//        source.query(queryBuilder);
-//        System.out.println(source);
+        SearchRequest searchRequest = new SearchRequest();
+        //指定检索哪个索引
+        searchRequest.indices("goods");
+        searchRequest.types("info");
+        //封装dsl语句对象
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        MatchQueryBuilder matchQueryBuilder = new MatchQueryBuilder("id", 2);
+        sourceBuilder.query(matchQueryBuilder);
+        //将dsl语句对象整合到请求对象中
+        searchRequest.source(sourceBuilder);
+
 //        //返回结果对象
-//        SearchResponse response = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
-//        SearchHits hits = response.getHits();
-//        long totalHits = hits.getTotalHits();
-//        System.out.println(totalHits);
+        SearchResponse response = restHighLevelClient.search(searchRequest,RequestOptions.DEFAULT);
+        SearchHits hits = response.getHits();
+        //获取命中的条数
+        long totalHits = hits.getTotalHits();
+        System.out.println(totalHits);
+
         return Result.ok();
     }
 
@@ -84,8 +90,14 @@ public class ListApiControoler {
     }
 
     @RequestMapping("incrHotScore/{skuId}")
-    void incrHotScore(@PathVariable("skuId") Long skuId){
+    public void incrHotScore(@PathVariable("skuId") Long skuId){
         listService.incrHotScore(skuId);
     }
+
+    @RequestMapping("list")
+    public SearchResponseVo list(@RequestBody SearchParam searchParam){
+        return listService.list(searchParam);
+    }
+
 
 }
