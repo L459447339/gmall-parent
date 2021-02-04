@@ -20,6 +20,7 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.*;
+import org.elasticsearch.search.aggregations.bucket.nested.NestedAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedLongTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
@@ -131,6 +132,7 @@ public class ListServiceImpl implements ListService {
         }
         return searchResponseVo;
     }
+
     //解析结果
     private SearchResponseVo getResult(SearchResponse search) {
         List<Goods> goodsList = new ArrayList<>();
@@ -168,11 +170,13 @@ public class ListServiceImpl implements ListService {
             }).collect(Collectors.toList());
             return searchResponseTmVo;
         }).collect(Collectors.toList());
-
-
         searchResponseVo.setTrademarkList(collectTmIdAggr);
+        //平台属性聚合解析
+        //TODO
+
         return searchResponseVo;
     }
+
     //封装dsl
     private SearchRequest getCategory3IdSearchRequest(Long category3Id){
         SearchRequest searchRequest = new SearchRequest();
@@ -186,18 +190,19 @@ public class ListServiceImpl implements ListService {
         //第一层聚合
         TermsAggregationBuilder tmIdAggr = AggregationBuilders.terms("tmIdAggr").field("tmId");
         //第二层聚合
-        TermsAggregationBuilder tmNameAggr = AggregationBuilders.terms("tmNameAggr").field("tmName");
-        TermsAggregationBuilder tmLogUrlAggr = AggregationBuilders.terms("tmLogoUrlAggr").field("tmLogoUrl");
-        //将第二层dsl语句放到第一层里
-        tmIdAggr.subAggregation(tmNameAggr);
-        tmIdAggr.subAggregation(tmLogUrlAggr);
+        tmIdAggr.subAggregation(AggregationBuilders.terms("tmNameAggr").field("tmName"));
+        tmIdAggr.subAggregation(AggregationBuilders.terms("tmLogoUrlAggr").field("tmLogoUrl"));
         searchSourceBuilder.aggregation(tmIdAggr);
+        //聚合平台属性，nested类型
+        //TODO ...
+        NestedAggregationBuilder nested = AggregationBuilders.nested("attrAggrs", "attrAggrs");
+        TermsAggregationBuilder attrIdAggr = AggregationBuilders.terms("attrIdAggr");
+        nested.subAggregation(attrIdAggr);
+        attrIdAggr.subAggregation(AggregationBuilders.terms("attrNameAggr"));
+        attrIdAggr.subAggregation(AggregationBuilders.terms("attrValuelAggr"));
+        searchSourceBuilder.aggregation(nested);
+        System.out.println(searchSourceBuilder);
         searchRequest.source(searchSourceBuilder);
-        //聚合平台属性信息
-        //nested类型聚合
-
-
-
         return searchRequest;
     }
 }

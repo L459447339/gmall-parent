@@ -27,6 +27,11 @@ public class ListController {
         return "index";
     }
 
+    /**
+     * 商品列表接口
+     * SearchParam 封装了检索条件参数
+     * SearchResponseVo  封装了es检索结果数据：品牌信息集合、平台属性集合、商品信息集合
+     */
     @RequestMapping("list")
     public String list(Model model, SearchParam searchParam){
         SearchResponseVo searchResponseVo = listFeignClient.list(searchParam);

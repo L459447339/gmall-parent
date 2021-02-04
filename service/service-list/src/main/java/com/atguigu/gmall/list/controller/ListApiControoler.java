@@ -89,11 +89,13 @@ public class ListApiControoler {
         listService.cancelSale(skuId);
     }
 
+    //热度值
     @RequestMapping("incrHotScore/{skuId}")
     public void incrHotScore(@PathVariable("skuId") Long skuId){
         listService.incrHotScore(skuId);
     }
 
+    //商品列表
     @RequestMapping("list")
     public SearchResponseVo list(@RequestBody SearchParam searchParam){
         return listService.list(searchParam);

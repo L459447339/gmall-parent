@@ -1,5 +1,6 @@
 package com.atguigu.gmall.service.impl;
 
+import com.atguigu.gmall.aspect.GmallCache;
 import com.atguigu.gmall.bean.*;
 import com.atguigu.gmall.list.client.ListFeignClient;
 import com.atguigu.gmall.list.SearchAttr;
@@ -145,7 +146,7 @@ public class SkuServiceImpl implements SkuService {
 
     //获取sku信息和图片信息
     @Override
-    //@GmallCache
+    @GmallCache
     public SkuInfo getSkuInfo(Long skuId) {
 //        SkuInfo skuInfo = null;
 //        //进入的线程需要拿到分布式锁才能操作
@@ -190,21 +191,29 @@ public class SkuServiceImpl implements SkuService {
 //        }
 //        return skuInfo;
 
+        //redisson框架实现分布式锁
+//        RLock lock = redissonClient.getLock(UUID.randomUUID().toString()+":lock");
+//        SkuInfo skuInfo;
+//        try {
+//            //上分布式锁；如果不指定过期时间，底层看门狗机制将会默认指定30s过期时间，并且任务没执行完会续期；
+//            lock.lock(5,TimeUnit.SECONDS);
+//            skuInfo = skuInfoMapper.selectById(skuId);
+//            QueryWrapper<SkuImage> imageQueryWrapper = new QueryWrapper<>();
+//            imageQueryWrapper.eq("sku_id", skuId);
+//            List<SkuImage> skuImages = skuImageMapper.selectList(imageQueryWrapper);
+//            skuInfo.setSkuImageList(skuImages);
+//        } finally {
+//            //释放锁，同一个线程同一把锁
+//            lock.unlock();
+//        }
+//        return skuInfo;
 
-        RLock lock = redissonClient.getLock(UUID.randomUUID().toString()+":lock");
-        SkuInfo skuInfo;
-        try {
-            //上分布式锁；如果不指定过期时间，底层看门狗机制将会默认指定30s过期时间，并且任务没执行完会续期；
-            lock.lock(5,TimeUnit.SECONDS);
-            skuInfo = skuInfoMapper.selectById(skuId);
-            QueryWrapper<SkuImage> imageQueryWrapper = new QueryWrapper<>();
-            imageQueryWrapper.eq("sku_id", skuId);
-            List<SkuImage> skuImages = skuImageMapper.selectList(imageQueryWrapper);
-            skuInfo.setSkuImageList(skuImages);
-        } finally {
-            //释放锁，同一个线程同一把锁
-            lock.unlock();
-        }
+
+        SkuInfo skuInfo = skuInfoMapper.selectById(skuId);
+        QueryWrapper<SkuImage> imageQueryWrapper = new QueryWrapper<>();
+        imageQueryWrapper.eq("sku_id", skuId);
+        List<SkuImage> skuImages = skuImageMapper.selectList(imageQueryWrapper);
+        skuInfo.setSkuImageList(skuImages);
         return skuInfo;
     }
 
@@ -221,18 +230,18 @@ public class SkuServiceImpl implements SkuService {
     //获取价格
     @Override
     public BigDecimal getPrice(Long skuId) {
-            SkuInfo skuInfo = skuInfoMapper.selectById(skuId);
-            return skuInfo.getPrice();
+        SkuInfo skuInfo = skuInfoMapper.selectById(skuId);
+        return skuInfo.getPrice();
     }
 
     //获取销售属性及对应的sku销售属性
     @Override
-    //@GmallCache
+    @GmallCache
     public List<SpuSaleAttr> getSpuSaleAttrListCheckBySku(Long skuId, Long spuId) {
         RLock lock = redissonClient.getLock(UUID.randomUUID().toString() + ":lock");
         List<SpuSaleAttr> spuSaleAttrList;
         try {
-            lock.lock(5,TimeUnit.SECONDS);
+            lock.lock(5, TimeUnit.SECONDS);
             spuSaleAttrList = skuSaleAttrValueMapper.getSpuSaleAttrListCheckBySku(skuId, spuId);
         } finally {
             lock.unlock();
@@ -242,12 +251,12 @@ public class SkuServiceImpl implements SkuService {
 
     //获取根据销售属性组合获取sku_id的kv
     @Override
-    //@GmallCache
+    @GmallCache
     public List<Map<String, Object>> getValuesSkuJson(Long spuId) {
         RLock lock = redissonClient.getLock(UUID.randomUUID().toString() + ":lock");
         List<Map<String, Object>> maps;
         try {
-            lock.lock(5,TimeUnit.SECONDS);
+            lock.lock(5, TimeUnit.SECONDS);
             maps = skuSaleAttrValueMapper.getValuesSkuJson(spuId);
         } finally {
             lock.unlock();
@@ -258,6 +267,6 @@ public class SkuServiceImpl implements SkuService {
     //查询平台属性id,attrName,attrValueName封装到SearchAttr中
     @Override
     public List<SearchAttr> getSearchAttrList(Long skuId) {
-       return skuAttrValueMapper.seleteSearchAttrList(skuId);
+        return skuAttrValueMapper.seleteSearchAttrList(skuId);
     }
 }
