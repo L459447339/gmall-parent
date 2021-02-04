@@ -267,6 +267,7 @@ public class SkuServiceImpl implements SkuService {
     //查询平台属性id,attrName,attrValueName封装到SearchAttr中
     @Override
     public List<SearchAttr> getSearchAttrList(Long skuId) {
-        return skuAttrValueMapper.seleteSearchAttrList(skuId);
+        List<SearchAttr> searchAttrs = skuAttrValueMapper.seleteSearchAttrList(skuId);
+        return searchAttrs;
     }
 }
