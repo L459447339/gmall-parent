@@ -137,13 +137,15 @@ public class ListServiceImpl implements ListService {
         List<Goods> goodsList = new ArrayList<>();
         SearchResponseVo searchResponseVo = new SearchResponseVo();
         SearchHits hits = searchResponse.getHits();
-        SearchHit[] hits1 = hits.getHits();
-        for (SearchHit documentFields : hits1) {
-            String sourceAsString = documentFields.getSourceAsString();
-            Goods goods = JSON.parseObject(sourceAsString, Goods.class);
-            goodsList.add(goods);
+        SearchHit[] hitsResult = hits.getHits();
+        if(hitsResult!=null && hitsResult.length>0){
+            for (SearchHit documentFields : hitsResult) {
+                String sourceAsString = documentFields.getSourceAsString();
+                Goods goods = JSON.parseObject(sourceAsString, Goods.class);
+                goodsList.add(goods);
+            }
+            searchResponseVo.setGoodsList(goodsList);
         }
-        searchResponseVo.setGoodsList(goodsList);
 
         //品牌聚合解析
         Aggregations aggregations = searchResponse.getAggregations();
@@ -228,7 +230,6 @@ public class ListServiceImpl implements ListService {
         //平台属性
         //attrId:attrValue:attrName格式
         if (props != null && props.length > 0) {
-
             for (String prop : props) {
                 String[] split = prop.split(":");
                 Long attrId = Long.parseLong(split[0]);
@@ -267,8 +268,8 @@ public class ListServiceImpl implements ListService {
         //聚合平台属性，nested类型
         NestedAggregationBuilder aggrsAgg = AggregationBuilders.nested("attrsAgg", "attrs");
         TermsAggregationBuilder attrIdAgg = AggregationBuilders.terms("attrIdAgg").field("attrs.attrId");
-        attrIdAgg.subAggregation(AggregationBuilders.terms("attrNameAgg").field("attrs.attrName"));
         attrIdAgg.subAggregation(AggregationBuilders.terms("attrValueAgg").field("attrs.attrValue"));
+        attrIdAgg.subAggregation(AggregationBuilders.terms("attrNameAgg").field("attrs.attrName"));
         NestedAggregationBuilder nestedAggregationBuilder = aggrsAgg.subAggregation(attrIdAgg);
         searchSourceBuilder.aggregation(nestedAggregationBuilder);
         System.out.println(searchSourceBuilder.toString());
