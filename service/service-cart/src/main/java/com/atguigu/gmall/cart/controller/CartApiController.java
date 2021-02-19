@@ -37,7 +37,6 @@ public class CartApiController {
         return Result.ok(cartInfoList);
     }
 
-
     //修改购物车选中状态
     @RequestMapping("checkCart/{skuId}/{isChecked}")
     public Result ischeckCart(@PathVariable("skuId") Long skuId,@PathVariable("isChecked") Integer isChecked){
@@ -55,6 +54,4 @@ public class CartApiController {
         cartService.deleteCart(skuId,userId);
         return Result.ok();
     }
-
-
 }
