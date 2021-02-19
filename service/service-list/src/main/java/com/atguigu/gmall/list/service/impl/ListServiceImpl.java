@@ -146,11 +146,13 @@ public class ListServiceImpl implements ListService {
                 if(highlightFields!=null){
                     HighlightField title = highlightFields.get("title");
                     //获取到多个高亮字段
-                    Text[] fragments = title.getFragments();
-                    //拿到第一个高亮字段
-                    String highlightName = fragments[0].toString();
-                    //将高亮字段设置到查询结果集中
-                    goods.setTitle(highlightName);
+                    if(title!=null){
+                        Text[] fragments = title.getFragments();
+                        //拿到第一个高亮字段
+                        String highlightName = fragments[0].toString();
+                        //将高亮字段设置到查询结果集中
+                        goods.setTitle(highlightName);
+                    }
                 }
                 goodsList.add(goods);
             }
@@ -233,13 +235,14 @@ public class ListServiceImpl implements ListService {
             boolQueryBuilder.filter(matchQueryBuilder);
         }
         //关键字
-        if (keyword != null) {
+        if (!StringUtils.isEmpty(keyword)) {
             MatchQueryBuilder matchQueryBuilder = new MatchQueryBuilder("title", keyword);
             boolQueryBuilder.must(matchQueryBuilder);
             //高亮
             HighlightBuilder highlightBuilder = new HighlightBuilder();
             highlightBuilder.preTags("<span style='font-size:14px;font-weight:700;color:red'>");
             highlightBuilder.postTags("</span>");
+            //指定高亮的数据
             highlightBuilder.field("title");
             searchSourceBuilder.highlighter(highlightBuilder);
         }
