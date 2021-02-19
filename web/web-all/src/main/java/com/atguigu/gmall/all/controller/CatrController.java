@@ -3,6 +3,7 @@ package com.atguigu.gmall.all.controller;
 import com.atguigu.gmall.cart.client.CartFeignClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
@@ -17,5 +18,11 @@ public class CatrController {
         //调用cart模块进行处理购物车业务
         cartFeignClient.addCart(skuId,skuNum);
         return "cart/addCart";
+    }
+
+    //跳转结算购物车界面
+    @RequestMapping("cart.html")
+    public String cartList(Model model){
+        return "cart/index";
     }
 }

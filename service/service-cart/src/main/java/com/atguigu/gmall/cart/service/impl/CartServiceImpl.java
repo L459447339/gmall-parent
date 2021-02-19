@@ -4,12 +4,18 @@ import com.atguigu.gmall.bean.SkuInfo;
 import com.atguigu.gmall.cart.CartInfo;
 import com.atguigu.gmall.cart.mapper.CartMapper;
 import com.atguigu.gmall.cart.service.CartService;
+import com.atguigu.gmall.constant.RedisConst;
 import com.atguigu.gmall.product.client.ProductFeignClient;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class CartServiceImpl implements CartService {
@@ -19,6 +25,9 @@ public class CartServiceImpl implements CartService {
 
     @Autowired
     ProductFeignClient productFeignClient;
+
+    @Autowired
+    RedisTemplate redisTemplate;
 
     @Override
     public void addCart(CartInfo cartInfo) {
@@ -38,6 +47,11 @@ public class CartServiceImpl implements CartService {
             cartInfo.setSkuName(skuInfo.getSkuName());
             cartInfo.setCartPrice(new BigDecimal(skuInfo.getPrice().toString()).multiply(new BigDecimal(cartInfo.getSkuNum().toString())));
             cartMapper.insert(cartInfo);
+            //同步redis缓存
+            Map<String, Object> mapRedis = new HashMap<>();
+            mapRedis.put(skuId.toString(),cartInfo);
+            redisTemplate.opsForHash().putAll(RedisConst.USER_KEY_PREFIX+userId+RedisConst.USER_CART_KEY_SUFFIX,mapRedis);
+
         }else {
             //修改操作
             Integer skuNum = cartInfoResult.getSkuNum();
@@ -48,5 +62,41 @@ public class CartServiceImpl implements CartService {
             cartInfoResult.setCartPrice(add.multiply(new BigDecimal(skuInfo.getPrice().toString())));
             cartMapper.updateById(cartInfoResult);
         }
+    }
+
+    //查询购物车列表
+    @Override
+    public List<CartInfo> cartList(String userId) {
+        QueryWrapper<CartInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id",userId);
+        List<CartInfo> cartInfoList = cartMapper.selectList(queryWrapper);
+        //将每一个CartInfo中对应的skuId查询出Pirce设置进去
+        for (CartInfo cartInfo : cartInfoList) {
+            Long skuId = cartInfo.getSkuId();
+            SkuInfo skuInfo = productFeignClient.getSkuInfo(skuId);
+            BigDecimal price = skuInfo.getPrice();
+            cartInfo.setSkuPrice(price);
+        }
+        return cartInfoList;
+    }
+
+    //更改购物车状态
+    @Override
+    public void ischeckCart(Long skuId, Integer isChecked,String userId) {
+        QueryWrapper<CartInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("sku_id",skuId);
+        queryWrapper.eq("user_id",userId);
+        CartInfo cartInfo = cartMapper.selectOne(queryWrapper);
+        cartInfo.setIsChecked(isChecked);
+        cartMapper.updateById(cartInfo);
+    }
+
+    //删除购物车商品
+    @Override
+    public void deleteCart(Long skuId, String userId) {
+        QueryWrapper<CartInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("sku_id",skuId);
+        queryWrapper.eq("user_id",userId);
+        cartMapper.delete(queryWrapper);
     }
 }
