@@ -15,6 +15,7 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.text.Text;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
@@ -26,6 +27,8 @@ import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,10 +37,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -101,16 +101,15 @@ public class ListServiceImpl implements ListService {
         redisTemplate.opsForValue().setIfAbsent("sku:" + skuId + ":hotScore", 0L);
         //将热度值保存到redis中并+1
         Long increment = redisTemplate.opsForValue().increment("sku:" + skuId + ":hotScore", 1L);
-        if (increment % 20 == 0) {
+        if (increment % 50 == 0) {
             //获取到当前sku的热度值
             Optional<Goods> goodsOptional = goodsRepository.findById(skuId);
             Goods goods = goodsOptional.get();
             goods.setHotScore(increment);
-            //每增加20次就往es中更新一次数据
+            //每增加50次就往es中更新一次数据
             goodsRepository.save(goods);
         }
     }
-
 
     @Override
     public SearchResponseVo list(SearchParam searchParam) {
@@ -142,6 +141,17 @@ public class ListServiceImpl implements ListService {
             for (SearchHit documentFields : hitsResult) {
                 String sourceAsString = documentFields.getSourceAsString();
                 Goods goods = JSON.parseObject(sourceAsString, Goods.class);
+                //解析高亮
+                Map<String, HighlightField> highlightFields = documentFields.getHighlightFields();
+                if(highlightFields!=null){
+                    HighlightField title = highlightFields.get("title");
+                    //获取到多个高亮字段
+                    Text[] fragments = title.getFragments();
+                    //拿到第一个高亮字段
+                    String highlightName = fragments[0].toString();
+                    //将高亮字段设置到查询结果集中
+                    goods.setTitle(highlightName);
+                }
                 goodsList.add(goods);
             }
             searchResponseVo.setGoodsList(goodsList);
@@ -226,6 +236,12 @@ public class ListServiceImpl implements ListService {
         if (keyword != null) {
             MatchQueryBuilder matchQueryBuilder = new MatchQueryBuilder("title", keyword);
             boolQueryBuilder.must(matchQueryBuilder);
+            //高亮
+            HighlightBuilder highlightBuilder = new HighlightBuilder();
+            highlightBuilder.preTags("<span style='font-size:14px;font-weight:700;color:red'>");
+            highlightBuilder.postTags("</span>");
+            highlightBuilder.field("title");
+            searchSourceBuilder.highlighter(highlightBuilder);
         }
         //平台属性
         //attrId:attrValue:attrName格式
@@ -249,13 +265,26 @@ public class ListServiceImpl implements ListService {
                 boolQueryBuilder.must(nestedQueryBuilder);
             }
         }
+        searchSourceBuilder.query(boolQueryBuilder);
+
         //排序
         //hotScore:price
-        if (order != null) {
-            searchSourceBuilder.sort("hotScore", SortOrder.DESC);
+        if (!StringUtils.isEmpty(order)) {
+            String[] split = order.split(":");
+            //1表示热度排序，2表示价格排序
+            String type = split[0];
+            //asc表示正序，desc表示倒序
+            String sortBy = split[1];
+            if(type.equals("1")){
+                type="hotScore";
+            }else if(type.equals("2")){
+                type="price";
+            }
+            searchSourceBuilder.sort(type,sortBy.equals("asc")?SortOrder.ASC:SortOrder.DESC);
         }
-
-        searchSourceBuilder.query(boolQueryBuilder);
+        //分页
+        searchSourceBuilder.from(0);
+        searchSourceBuilder.size(60);
 
         //聚合品牌信息
         //第一层聚合

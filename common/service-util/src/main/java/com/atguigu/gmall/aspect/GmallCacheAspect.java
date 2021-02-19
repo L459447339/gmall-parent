@@ -38,7 +38,7 @@ public class GmallCacheAspect {
         Class<?> returnType = methodSignature.getMethod().getReturnType();
         //获取方法名
         String methodName = methodSignature.getMethod().getName();
-        //获取上的注解信息
+        //获取方法上的注解信息
         GmallCache annotation = methodSignature.getMethod().getAnnotation(GmallCache.class);
         //拼接key
         String argKey = "";

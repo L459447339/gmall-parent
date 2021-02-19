@@ -15,12 +15,12 @@ import java.util.Map;
 public class ItemApiController {
 
     @Autowired
-    private ItemApiService service;
+    private ItemApiService itemApiService;
 
     @GetMapping("getItem/{skuId}")
     public Map<String,Object> getItem(@PathVariable("skuId") Long skuId){
         Map<String,Object> map = new HashMap<>();
-        map = service.getItem(skuId);
+        map = itemApiService.getItem(skuId);
         return map;
     }
 

@@ -31,11 +31,11 @@ public class ItemApiServiceImpl implements ItemApiService {
 
     @Autowired
     private ListFeignClient listFeignClient;
-    //使用异步编排优化查询商品详情信息
+
     @Override
     public Map<String, Object> getItem(Long skuId) {
         Map<String,Object> map = new HashMap<>();
-        //查询sku信息和sku图片信息
+        //查询skuInfo
         CompletableFuture<SkuInfo> completableFutureSkuInfo = CompletableFuture.supplyAsync(new Supplier<SkuInfo>() {
             @Override
             public SkuInfo get() {
@@ -52,7 +52,7 @@ public class ItemApiServiceImpl implements ItemApiService {
                 map.put("categoryView", categoryView);
             }
         },threadPoolExecutor);
-        //查询价格信息
+        //查询sku价格
         CompletableFuture completableFuturePrice = CompletableFuture.runAsync(new Runnable() {
             @Override
             public void run() {
@@ -60,7 +60,7 @@ public class ItemApiServiceImpl implements ItemApiService {
                 map.put("price",price);
             }
         },threadPoolExecutor);
-        //查询销售属性
+        //查询spu销售属性
         CompletableFuture<Void> completableFutureAttr = completableFutureSkuInfo.thenAcceptAsync(new Consumer<SkuInfo>() {
             @Override
             public void accept(SkuInfo skuInfo) {
@@ -68,7 +68,7 @@ public class ItemApiServiceImpl implements ItemApiService {
                 map.put("spuSaleAttrList", spuSaleAttrList);
             }
         },threadPoolExecutor);
-        //销售属性组合对应的sku_id
+        //查询spu销售属性组合唯一sku
         CompletableFuture<Void> completableFutureSkuJson = completableFutureSkuInfo.thenAcceptAsync(new Consumer<SkuInfo>() {
             @Override
             public void accept(SkuInfo skuInfo) {

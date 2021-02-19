@@ -1,11 +1,9 @@
 package com.atguigu.gmall.all.controller;
 
-import com.alibaba.fastjson.JSONObject;
 import com.atguigu.gmall.list.SearchAttr;
 import com.atguigu.gmall.list.SearchParam;
 import com.atguigu.gmall.list.SearchResponseVo;
 import com.atguigu.gmall.list.client.ListFeignClient;
-import org.aspectj.weaver.ast.Var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,7 +11,9 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class ListController {
@@ -44,6 +44,14 @@ public class ListController {
         model.addAttribute("attrsList", searchResponseVo.getAttrsList());
         String urlParam = getUrlParam(searchParam);
         model.addAttribute("urlParam", urlParam);
+        //排序属性orderMap
+        String order = searchParam.getOrder();
+        if(!StringUtils.isEmpty(order)){
+            Map<String,String> orderMap = new HashMap<>();
+            orderMap.put("type",order.split(":")[0]);
+            orderMap.put("sort",order.split(":")[1]);
+            model.addAttribute("orderMap", orderMap);
+        }
         //品牌面包屑trademarkParam
         if (!StringUtils.isEmpty(searchParam.getTrademark())) {
             String[] split = searchParam.getTrademark().split(":");
@@ -97,5 +105,4 @@ public class ListController {
         }
         return urlParam;
     }
-
 }
