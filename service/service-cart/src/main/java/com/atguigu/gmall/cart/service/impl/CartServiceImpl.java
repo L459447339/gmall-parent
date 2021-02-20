@@ -47,35 +47,45 @@ public class CartServiceImpl implements CartService {
             cartInfo.setSkuName(skuInfo.getSkuName());
             cartInfo.setCartPrice(new BigDecimal(skuInfo.getPrice().toString()).multiply(new BigDecimal(cartInfo.getSkuNum().toString())));
             cartMapper.insert(cartInfo);
-            //同步redis缓存
-            Map<String, Object> mapRedis = new HashMap<>();
-            mapRedis.put(skuId.toString(),cartInfo);
-            redisTemplate.opsForHash().putAll(RedisConst.USER_KEY_PREFIX+userId+RedisConst.USER_CART_KEY_SUFFIX,mapRedis);
-
         }else {
             //修改操作
             Integer skuNum = cartInfoResult.getSkuNum();
             Integer skuNumNew = cartInfo.getSkuNum();
             //将之前的sku商品数量和再次点击加入购物车的sku商品数量相加得到现有的
             BigDecimal add = new BigDecimal(skuNum.toString()).add(new BigDecimal(skuNumNew.toString()));
-            cartInfoResult.setSkuNum(add.intValue());
-            cartInfoResult.setCartPrice(add.multiply(new BigDecimal(skuInfo.getPrice().toString())));
-            cartMapper.updateById(cartInfoResult);
+            cartInfo.setSkuNum(add.intValue());
+            cartInfo.setCartPrice(add.multiply(new BigDecimal(skuInfo.getPrice().toString())));
+            cartMapper.updateById(cartInfo);
+        }
+        //同步缓存
+        List<CartInfo> cartInfos = cartMapper.selectList(null);
+        if(cartInfos!=null){
+            for (CartInfo info : cartInfos) {
+                redisTemplate.opsForHash().put(RedisConst.USER_KEY_PREFIX+info.getUserId()+RedisConst.USER_CART_KEY_SUFFIX,
+                        info.getSkuId().toString(),info);
+            }
         }
     }
 
     //查询购物车列表
     @Override
     public List<CartInfo> cartList(String userId) {
-        QueryWrapper<CartInfo> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("user_id",userId);
-        List<CartInfo> cartInfoList = cartMapper.selectList(queryWrapper);
-        //将每一个CartInfo中对应的skuId查询出Pirce设置进去
-        for (CartInfo cartInfo : cartInfoList) {
-            Long skuId = cartInfo.getSkuId();
-            SkuInfo skuInfo = productFeignClient.getSkuInfo(skuId);
-            BigDecimal price = skuInfo.getPrice();
-            cartInfo.setSkuPrice(price);
+        //查询缓存
+        List<CartInfo> cartInfoList = (List<CartInfo>)redisTemplate.opsForHash().values(RedisConst.USER_KEY_PREFIX + userId + RedisConst.USER_CART_KEY_SUFFIX);
+        if(cartInfoList==null || cartInfoList.size()==0){
+            QueryWrapper<CartInfo> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("user_id",userId);
+            cartInfoList = cartMapper.selectList(queryWrapper);
+            //将每一个CartInfo中对应的skuId查询出Pirce设置进去
+            for (CartInfo cartInfo : cartInfoList) {
+                Long skuId = cartInfo.getSkuId();
+                SkuInfo skuInfo = productFeignClient.getSkuInfo(skuId);
+                BigDecimal price = skuInfo.getPrice();
+                cartInfo.setSkuPrice(price);
+                //同步缓存
+                redisTemplate.opsForHash().put(RedisConst.USER_KEY_PREFIX+cartInfo.getUserId()+RedisConst.USER_CART_KEY_SUFFIX,
+                        cartInfo.getSkuId().toString(),cartInfo);
+            }
         }
         return cartInfoList;
     }
@@ -89,6 +99,10 @@ public class CartServiceImpl implements CartService {
         CartInfo cartInfo = cartMapper.selectOne(queryWrapper);
         cartInfo.setIsChecked(isChecked);
         cartMapper.updateById(cartInfo);
+        //更新缓存
+        CartInfo cartCache = (CartInfo) redisTemplate.opsForHash().get(RedisConst.USER_KEY_PREFIX + cartInfo.getUserId() + RedisConst.USER_CART_KEY_SUFFIX, cartInfo.getSkuId().toString());
+        cartCache.setIsChecked(isChecked);
+        redisTemplate.opsForHash().put(RedisConst.USER_KEY_PREFIX + cartInfo.getUserId() + RedisConst.USER_CART_KEY_SUFFIX, cartInfo.getSkuId().toString(),cartCache);
     }
 
     //删除购物车商品
@@ -98,5 +112,7 @@ public class CartServiceImpl implements CartService {
         queryWrapper.eq("sku_id",skuId);
         queryWrapper.eq("user_id",userId);
         cartMapper.delete(queryWrapper);
+        //删除缓存
+        redisTemplate.opsForHash().delete(RedisConst.USER_KEY_PREFIX+userId+RedisConst.USER_CART_KEY_SUFFIX,skuId.toString());
     }
 }

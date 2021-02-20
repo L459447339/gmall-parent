@@ -2,6 +2,7 @@ package com.atguigu.gmall.all.controller;
 
 import com.atguigu.gmall.cart.client.CartFeignClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,19 +10,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class CatrController {
 
+    //添加或修改购物车
     @Autowired
     CartFeignClient cartFeignClient;
 
-    //添加或修改购物车
     @RequestMapping("addCart.html")
     public String addCart(Long skuId,Integer skuNum){
         //调用cart模块进行处理购物车业务
         cartFeignClient.addCart(skuId,skuNum);
-        return "cart/addCart";
+        //静态传参
+        return "redirect:cart/addCartSuccess.html?skuName=?&price=?";
     }
 
     //跳转结算购物车界面
-    @RequestMapping("cart.html")
+    @RequestMapping("cart/cart.html")
     public String cartList(Model model){
         return "cart/index";
     }
