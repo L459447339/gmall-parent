@@ -16,6 +16,7 @@
         <module>service-item</module>
         <module>service-list</module>
         <module>service-cart</module>
+        <module>service-user</module>
     </modules>
 
     <dependencies>

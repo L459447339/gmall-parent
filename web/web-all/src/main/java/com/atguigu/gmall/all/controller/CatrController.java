@@ -2,9 +2,7 @@ package com.atguigu.gmall.all.controller;
 
 import com.atguigu.gmall.cart.client.CartFeignClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
@@ -24,7 +22,7 @@ public class CatrController {
 
     //跳转结算购物车界面
     @RequestMapping("cart/cart.html")
-    public String cartList(Model model){
+    public String cartList(){
         return "cart/index";
     }
 }

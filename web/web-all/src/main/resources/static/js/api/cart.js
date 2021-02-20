@@ -13,7 +13,7 @@ var cart = {
   // 我的购物车
   cartList() {
     return request({
-      url: "http://cart.gmall.com:8201/api/cart/cartList",//this.api_name + '/cartList',
+      url: this.api_name + '/cartList',
       method: 'get'
     })
   },
@@ -21,7 +21,7 @@ var cart = {
   // 更新选中状态
   checkCart(skuId, isChecked) {
     return request({
-      url: "http://cart.gmall.com:8201/api/cart/checkCart/"+ skuId + '/' + isChecked,//this.api_name + '/checkCart/' + skuId + '/' + isChecked,
+      url: this.api_name + '/checkCart/' + skuId + '/' + isChecked,
       method: 'get'
     })
   },
@@ -29,7 +29,7 @@ var cart = {
 // 刪除
   deleteCart(skuId) {
     return request({
-      url: "http://cart.gmall.com:8201/api/cart/deleteCart/"+ skuId,//this.api_name + '/deleteCart/' + skuId,
+      url: this.api_name + '/deleteCart/' + skuId,
       method: 'delete'
     })
   }
