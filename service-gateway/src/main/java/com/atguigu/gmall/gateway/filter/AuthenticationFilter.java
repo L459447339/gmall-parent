@@ -55,7 +55,7 @@ public class AuthenticationFilter implements GlobalFilter {
         for (String authUrl : authUrlsArray) {
             //判断请求url是否包含白名单地址，如果是则需要验证Token，验证成功允许访问，验证失败重定向到认证中心
             if(uri.contains(authUrl)){
-                //验证Token
+                //验证Token..TODO
                 //验证失败，重定向
                 HttpHeaders headers = response.getHeaders();
                 headers.set(HttpHeaders.LOCATION,"http://passport.gmall.com/login?ReturnUrl="+uri);

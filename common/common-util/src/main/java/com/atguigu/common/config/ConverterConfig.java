@@ -1,4 +1,4 @@
-package com.atguigu.gmall.gateway.config;
+package com.atguigu.common.config;
 
 import feign.codec.Decoder;
 import org.springframework.beans.BeansException;
