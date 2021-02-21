@@ -1,6 +1,6 @@
 package com.atguigu.gmall.controller;
 
-import com.atguigu.common.result.Result;
+import com.atguigu.gmall.common.result.Result;
 import org.csource.common.MyException;
 import org.csource.fastdfs.ClientGlobal;
 import org.csource.fastdfs.StorageClient;

@@ -1,7 +1,7 @@
 package com.atguigu.gmall.list.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.atguigu.common.result.Result;
+import com.atguigu.gmall.common.result.Result;
 import com.atguigu.gmall.list.SearchParam;
 import com.atguigu.gmall.list.SearchResponseVo;
 import com.atguigu.gmall.list.service.ListService;
@@ -10,8 +10,6 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.MatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;

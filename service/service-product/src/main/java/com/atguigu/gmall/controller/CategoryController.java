@@ -1,6 +1,6 @@
 package com.atguigu.gmall.controller;
 
-import com.atguigu.common.result.Result;
+import com.atguigu.gmall.common.result.Result;
 import com.atguigu.gmall.bean.*;
 import com.atguigu.gmall.service.CategoryService;
 import io.swagger.annotations.Api;

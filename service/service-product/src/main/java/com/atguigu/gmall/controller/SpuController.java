@@ -1,10 +1,9 @@
 package com.atguigu.gmall.controller;
 
-import com.atguigu.common.result.Result;
+import com.atguigu.gmall.common.result.Result;
 import com.atguigu.gmall.bean.BaseSaleAttr;
 import com.atguigu.gmall.bean.BaseTrademark;
 import com.atguigu.gmall.bean.SpuInfo;
-import com.atguigu.gmall.bean.SpuSaleAttr;
 import com.atguigu.gmall.service.SpuService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
