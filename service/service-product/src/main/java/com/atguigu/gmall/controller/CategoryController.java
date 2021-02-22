@@ -13,7 +13,7 @@ import java.util.List;
 @Api(tags = "商品基础属性接口")
 @RestController
 @RequestMapping("admin/product")
-@CrossOrigin
+//@CrossOrigin
 public class CategoryController {
 
     @Autowired

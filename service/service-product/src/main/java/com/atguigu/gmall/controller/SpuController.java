@@ -17,7 +17,7 @@ import java.util.Map;
 @Api(tags = "Spu接口")
 @RestController
 @RequestMapping("admin/product")
-@CrossOrigin
+//@CrossOrigin
 public class SpuController {
 
     @Autowired

@@ -14,7 +14,7 @@ import java.io.IOException;
 
 @RestController
 @RequestMapping("admin/product")
-@CrossOrigin
+//@CrossOrigin
 public class FdfsController {
 
     @PostMapping("fileUpload")

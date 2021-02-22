@@ -17,7 +17,7 @@ import java.util.Map;
 @Api(tags = "平台属性接口")
 @RestController
 @RequestMapping("admin/product")
-@CrossOrigin
+//@CrossOrigin
 public class AttrController {
 
     @Autowired

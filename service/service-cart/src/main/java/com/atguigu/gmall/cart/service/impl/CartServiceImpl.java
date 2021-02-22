@@ -45,6 +45,7 @@ public class CartServiceImpl implements CartService {
             cartInfo.setImgUrl(skuInfo.getSkuDefaultImg());
             cartInfo.setIsChecked(1);
             cartInfo.setSkuName(skuInfo.getSkuName());
+            cartInfo.setSkuPrice(skuInfo.getPrice());
             cartInfo.setCartPrice(new BigDecimal(skuInfo.getPrice().toString()).multiply(new BigDecimal(cartInfo.getSkuNum().toString())));
             cartMapper.insert(cartInfo);
         }else {
@@ -54,7 +55,9 @@ public class CartServiceImpl implements CartService {
             //将之前的sku商品数量和再次点击加入购物车的sku商品数量相加得到现有的
             BigDecimal add = new BigDecimal(skuNum.toString()).add(new BigDecimal(skuNumNew.toString()));
             cartInfo.setSkuNum(add.intValue());
+            cartInfo.setSkuPrice(skuInfo.getPrice());
             cartInfo.setCartPrice(add.multiply(new BigDecimal(skuInfo.getPrice().toString())));
+            cartInfo.setId(cartInfoResult.getId());
             cartMapper.updateById(cartInfo);
         }
         //同步缓存

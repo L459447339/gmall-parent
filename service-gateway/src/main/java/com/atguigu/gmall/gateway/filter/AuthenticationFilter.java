@@ -64,9 +64,6 @@ public class AuthenticationFilter implements GlobalFilter {
             }
         }
 
-        String str = userFeignClient.ping();
-        System.out.println(str);
-
         System.out.println(uri);
         return chain.filter(exchange);
     }

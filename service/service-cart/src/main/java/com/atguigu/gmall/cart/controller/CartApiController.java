@@ -10,7 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/cart")
-@CrossOrigin
+//@CrossOrigin
 public class CartApiController {
 
     @Autowired

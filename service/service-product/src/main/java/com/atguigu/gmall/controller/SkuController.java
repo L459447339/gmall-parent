@@ -16,7 +16,7 @@ import java.util.Map;
 
 @Api(tags = "Sku接口")
 @RestController
-@CrossOrigin
+//@CrossOrigin
 @RequestMapping("admin/product")
 public class SkuController {
 
