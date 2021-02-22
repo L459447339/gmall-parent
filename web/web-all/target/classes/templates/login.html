@@ -121,7 +121,7 @@
                         auth.setUserInfo(JSON.stringify(response.data.data))
 
                         console.log("originUrl:"+this.originUrl);
-                        if(this.originUrl == ''){
+                        if(this.originUrl == ''||this.originUrl==null){
                             window.location.href="http://www.gmall.com/index.html"
                             return ;
                         } else {

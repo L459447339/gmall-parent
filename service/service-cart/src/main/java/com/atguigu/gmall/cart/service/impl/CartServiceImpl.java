@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -30,44 +31,50 @@ public class CartServiceImpl implements CartService {
     RedisTemplate redisTemplate;
 
     @Override
-    public void addCart(CartInfo cartInfo) {
-        Long skuId = cartInfo.getSkuId();
-        String userId = cartInfo.getUserId();
-        //根据用户id和skuId查询唯一的购物车信息，如果为null则进行添加，如果有值则修改数量
-        QueryWrapper<CartInfo> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("user_id",userId);
-        queryWrapper.eq("sku_id",skuId);
-        CartInfo cartInfoResult = cartMapper.selectOne(queryWrapper);
-        //根据skuId远程调用获取skuInfo
-        SkuInfo skuInfo = productFeignClient.getSkuInfo(skuId);
-        if(cartInfoResult==null){
-            //新增操作
-            cartInfo.setImgUrl(skuInfo.getSkuDefaultImg());
-            cartInfo.setIsChecked(1);
-            cartInfo.setSkuName(skuInfo.getSkuName());
-            cartInfo.setSkuPrice(skuInfo.getPrice());
-            cartInfo.setCartPrice(new BigDecimal(skuInfo.getPrice().toString()).multiply(new BigDecimal(cartInfo.getSkuNum().toString())));
-            cartMapper.insert(cartInfo);
-        }else {
-            //修改操作
-            Integer skuNum = cartInfoResult.getSkuNum();
-            Integer skuNumNew = cartInfo.getSkuNum();
-            //将之前的sku商品数量和再次点击加入购物车的sku商品数量相加得到现有的
-            BigDecimal add = new BigDecimal(skuNum.toString()).add(new BigDecimal(skuNumNew.toString()));
-            cartInfo.setSkuNum(add.intValue());
-            cartInfo.setSkuPrice(skuInfo.getPrice());
-            cartInfo.setCartPrice(add.multiply(new BigDecimal(skuInfo.getPrice().toString())));
-            cartInfo.setId(cartInfoResult.getId());
-            cartMapper.updateById(cartInfo);
-        }
-        //同步缓存
-        List<CartInfo> cartInfos = cartMapper.selectList(null);
-        if(cartInfos!=null){
-            for (CartInfo info : cartInfos) {
-                redisTemplate.opsForHash().put(RedisConst.USER_KEY_PREFIX+info.getUserId()+RedisConst.USER_CART_KEY_SUFFIX,
-                        info.getSkuId().toString(),info);
+    public void addCart(Long skuId,Integer skuNum,String userId,String userTempId) {
+        if(!StringUtils.isEmpty(userId)){
+            //说明处于登录状态，直接向db中存储购物车信息
+            CartInfo cartInfo = new CartInfo();
+            cartInfo.setSkuId(skuId);
+            cartInfo.setSkuNum(skuNum);
+            cartInfo.setUserId(userId);
+            //根据用户id和skuId查询唯一的购物车信息，如果为null则进行添加，如果有值则修改数量
+            QueryWrapper<CartInfo> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("user_id",userId);
+            queryWrapper.eq("sku_id",skuId);
+            CartInfo cartInfoResult = cartMapper.selectOne(queryWrapper);
+            //根据skuId远程调用获取skuInfo
+            SkuInfo skuInfo = productFeignClient.getSkuInfo(skuId);
+            if(cartInfoResult==null){
+                //新增操作
+                cartInfo.setImgUrl(skuInfo.getSkuDefaultImg());
+                cartInfo.setIsChecked(1);
+                cartInfo.setSkuName(skuInfo.getSkuName());
+                cartInfo.setSkuPrice(skuInfo.getPrice());
+                cartInfo.setCartPrice(new BigDecimal(skuInfo.getPrice().toString()).multiply(new BigDecimal(cartInfo.getSkuNum().toString())));
+                cartMapper.insert(cartInfo);
+            }else {
+                //修改操作
+                skuNum = cartInfoResult.getSkuNum();
+                Integer skuNumNew = cartInfo.getSkuNum();
+                //将之前的sku商品数量和再次点击加入购物车的sku商品数量相加得到现有的
+                BigDecimal add = new BigDecimal(skuNum.toString()).add(new BigDecimal(skuNumNew.toString()));
+                cartInfo.setSkuNum(add.intValue());
+                cartInfo.setSkuPrice(skuInfo.getPrice());
+                cartInfo.setCartPrice(add.multiply(new BigDecimal(skuInfo.getPrice().toString())));
+                cartInfo.setId(cartInfoResult.getId());
+                cartMapper.updateById(cartInfo);
+            }
+            //同步缓存
+            if(cartInfo!=null){
+                redisTemplate.opsForHash().put(RedisConst.USER_KEY_PREFIX+cartInfo.getUserId()+RedisConst.USER_CART_KEY_SUFFIX,
+                        cartInfo.getSkuId().toString(),cartInfo);
             }
         }
+       if(StringUtils.isEmpty(userId) && !StringUtils.isEmpty(userTempId)){
+           //说明处于未登录状态并且有临时id，将购物车临时数据存储在redis中并设置过期时间
+           //TODO
+       }
     }
 
     //查询购物车列表

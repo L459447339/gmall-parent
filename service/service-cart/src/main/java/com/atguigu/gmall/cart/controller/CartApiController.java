@@ -6,6 +6,7 @@ import com.atguigu.gmall.cart.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -18,14 +19,11 @@ public class CartApiController {
 
     //添加或修改购物车信息
     @RequestMapping("addCart/{skuId}/{skuNum}")
-    void addCart(@PathVariable("skuId") Long skuId, @PathVariable("skuNum") Integer skuNum){
-        //模拟用户id
-        String userId = "12";
-        CartInfo cartInfo = new CartInfo();
-        cartInfo.setSkuId(skuId);
-        cartInfo.setSkuNum(skuNum);
-        cartInfo.setUserId(userId);
-        cartService.addCart(cartInfo);
+    void addCart(@PathVariable("skuId") Long skuId, @PathVariable("skuNum") Integer skuNum, HttpServletRequest request){
+        //从请求头中获取userId和userTempId
+        String userId = request.getHeader("userId");
+        String userTempId = request.getHeader("userTempId");
+        cartService.addCart(skuId,skuNum,userId,userTempId);
     }
 
     //查询购物车列表

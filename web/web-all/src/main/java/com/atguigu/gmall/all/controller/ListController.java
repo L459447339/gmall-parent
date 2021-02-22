@@ -24,7 +24,7 @@ public class ListController {
     /**
      * 跳转到首页，分类列表可以通过后台查询，也可以使用静态化展示
      */
-    @RequestMapping({"index","/"})
+    @RequestMapping({"index.html","/"})
     public String index(Model model) {
 //        List<JSONObject> jsonObjects = listFeignClient.getBaseCategoryList();
 //        model.addAttribute("list",jsonObjects);

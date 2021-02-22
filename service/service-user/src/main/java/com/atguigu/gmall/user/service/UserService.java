@@ -6,4 +6,8 @@ import java.util.Map;
 
 public interface UserService {
     Map<String,Object> login(UserInfo userInfo);
+
+    Map<String, Object> verify(String token);
+
+    void logout(String token);
 }
