@@ -4,6 +4,7 @@ import com.atguigu.gmall.common.result.Result;
 import com.atguigu.gmall.order.OrderInfo;
 import com.atguigu.gmall.order.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,7 +29,11 @@ public class OrderApiController {
         if(flag){
             order.setUserId(Long.parseLong(userId));
             String orderId = orderService.submitOrder(order);
-            return Result.ok(orderId);
+            if(!StringUtils.isEmpty(orderId)){
+                return Result.ok(orderId);
+            }else {
+                return Result.fail().message("请重新提交订单");
+            }
         }else {
             return Result.fail().message("提交错误");
         }

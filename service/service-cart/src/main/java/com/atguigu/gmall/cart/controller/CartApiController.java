@@ -56,10 +56,17 @@ public class CartApiController {
         return Result.ok();
     }
 
-    //获取商品清单，购物车选中状态下的
+    //获取购物车选中状态下的商品
     @RequestMapping("inner/cartListInner/{userId}")
     List<CartInfo> cartListInner(@PathVariable("userId") String userId){
         List<CartInfo> cartInfoList = cartService.cartListInner(userId);
         return cartInfoList;
     }
+
+    //合并临时购物车数据
+    @RequestMapping("inner/mergeCart/{userId}/{userTempId}")
+    void mergeCart(@PathVariable("userId") String userId,@PathVariable("userTempId") String userTempId){
+        cartService.mergeCart(userId,userTempId);
+    }
+
 }

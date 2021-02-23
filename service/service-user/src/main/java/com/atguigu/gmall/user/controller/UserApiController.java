@@ -1,5 +1,6 @@
 package com.atguigu.gmall.user.controller;
 
+import com.atguigu.gmall.cart.client.CartFeignClient;
 import com.atguigu.gmall.common.result.Result;
 import com.atguigu.gmall.user.UserAddress;
 import com.atguigu.gmall.user.UserInfo;
@@ -20,6 +21,9 @@ public class UserApiController {
     @Autowired
     UserService userService;
 
+    @Autowired
+    CartFeignClient cartFeignClient;
+
     //测试
     @RequestMapping("inner/ping")
     String ping() {
@@ -28,12 +32,16 @@ public class UserApiController {
 
     //登录接口
     @PostMapping("login")
-    public Result login(@RequestBody UserInfo userInfo) {
+    public Result login(@RequestBody UserInfo userInfo,HttpServletRequest request) {
         //到db中查询该用户的信息
         Map<String, Object> map = userService.login(userInfo);
         if (map == null) {
             return Result.fail().message("用户名或密码错误！请重新登录！！");
         } else {
+            //登录成功，合并购物车临时数据
+            String userId = (String) map.get("userId");
+            String userTempId = request.getHeader("userTempId");
+            cartFeignClient.mergeCart(userId,userTempId);
             return Result.ok(map).message("登录成功");
         }
     }
@@ -53,14 +61,7 @@ public class UserApiController {
         return Result.ok();
     }
 
-    //注册接口
-    @RequestMapping("register")
-    public Result register(){
-        //TODO
-        return null;
-    }
-
-    //获取用户守护地址接口
+    //获取用户收获地址接口
     @RequestMapping("getUserAddress/{userId}")
     List<UserAddress> getUserAddress(@PathVariable("userId") String userId){
         List<UserAddress> userAddressList = userService.getUserAddress(userId);

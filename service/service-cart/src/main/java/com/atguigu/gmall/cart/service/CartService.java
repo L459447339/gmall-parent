@@ -15,4 +15,6 @@ public interface CartService {
     void deleteCart(Long skuId, String userId,String userTempId);
 
     List<CartInfo> cartListInner(String userId);
+
+    void mergeCart(String userId,String userTempId);
 }

@@ -15,4 +15,7 @@ public interface CartFeignClient {
 
     @RequestMapping("api/cart/inner/cartListInner/{userId}")
     List<CartInfo> cartListInner(@PathVariable("userId") String userId);
+
+    @RequestMapping("api/cart/inner/mergeCart/{userId}/{userTempId}")
+    void mergeCart(@PathVariable("userId") String userId,@PathVariable("userTempId") String userTempId);
 }

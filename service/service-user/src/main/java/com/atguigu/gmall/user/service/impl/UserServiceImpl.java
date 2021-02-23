@@ -48,10 +48,11 @@ public class UserServiceImpl implements UserService {
             //生成Token
             String token = UUID.randomUUID().toString();
             //将token作为key，userId作为value存储在redis中并设置过期时间
-            redisTemplate.opsForValue().set(RedisConst.USER_KEY_PREFIX + token, userNew.getId().toString(), RedisConst.USERKEY_TIMEOUT,TimeUnit.SECONDS);
+            redisTemplate.opsForValue().set(RedisConst.USER_KEY_PREFIX + token, userNew.getId()+"", RedisConst.USERKEY_TIMEOUT,TimeUnit.SECONDS);
             map.put("token", token);
             map.put("nickName", userNew.getNickName());
             map.put("name", userNew.getName());
+            map.put("userId", userNew.getId()+"");
             return map;
         }
         return null;
