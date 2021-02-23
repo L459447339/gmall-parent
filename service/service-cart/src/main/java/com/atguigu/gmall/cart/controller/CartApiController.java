@@ -28,10 +28,11 @@ public class CartApiController {
 
     //查询购物车列表
     @RequestMapping("cartList")
-    public Result cartList(){
-        //模拟用户id
-        String userId = "12";
-        List<CartInfo> cartInfoList = cartService.cartList(userId);
+    public Result cartList(HttpServletRequest request){
+        //从请求头中获取userId和userTempId
+        String userId = request.getHeader("userId");
+        String userTempId = request.getHeader("userTempId");
+        List<CartInfo> cartInfoList = cartService.cartList(userId,userTempId);
         return Result.ok(cartInfoList);
     }
 

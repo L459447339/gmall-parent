@@ -8,7 +8,7 @@ public interface CartService {
 
     void addCart(Long skuId,Integer skuNum,String userId,String userTempId);
 
-    List<CartInfo> cartList(String userId);
+    List<CartInfo> cartList(String userId,String userTempId);
 
     void ischeckCart(Long skuId, Integer isChecked,String userId);
 

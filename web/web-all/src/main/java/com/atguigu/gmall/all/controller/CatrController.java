@@ -19,7 +19,7 @@ public class CatrController {
         //调用cart模块进行处理购物车业务
         cartFeignClient.addCart(skuId, skuNum);
         //静态传参
-        return "redirect:cart/addCartSuccess.html?skuName=?&price=?";
+        return "redirect:http://cart.gmall.com/cart/addCartSuccess.html?skuName=?&price=?";
     }
 
     //跳转结算购物车界面
