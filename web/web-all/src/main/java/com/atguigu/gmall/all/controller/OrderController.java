@@ -3,6 +3,7 @@ package com.atguigu.gmall.all.controller;
 import com.atguigu.gmall.cart.CartInfo;
 import com.atguigu.gmall.cart.client.CartFeignClient;
 import com.atguigu.gmall.order.OrderDetail;
+import com.atguigu.gmall.order.client.OrderFeignClient;
 import com.atguigu.gmall.user.UserAddress;
 import com.atguigu.gmall.user.client.UserFeignClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,9 @@ public class OrderController {
 
     @Autowired
     CartFeignClient cartFeignClient;
+
+    @Autowired
+    OrderFeignClient orderFeignClient;
 
     @RequestMapping("myOrder.html")
     public String myOrder(HttpServletRequest request){
@@ -72,6 +76,9 @@ public class OrderController {
             model.addAttribute("totalAmount",totalAmount);
             model.addAttribute("totalNum",totalNum.intValue());
         }
+        //生成一个tradeNo,用于防止用户重复提交订单
+        String tradeNo = orderFeignClient.genTradeNo(userId);
+        model.addAttribute("tradeNo",tradeNo);
         return "order/trade.html";
     }
 
