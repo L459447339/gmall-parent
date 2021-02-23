@@ -8,15 +8,12 @@ import com.atguigu.gmall.constant.RedisConst;
 import com.atguigu.gmall.product.client.ProductFeignClient;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class CartServiceImpl implements CartService {
@@ -37,9 +34,9 @@ public class CartServiceImpl implements CartService {
         if(!StringUtils.isEmpty(userId)){
             //说明处于登录状态，直接向db中存储购物车信息
             CartInfo cartInfo = new CartInfo();
-            cartInfo.setSkuId(skuId);
             cartInfo.setSkuNum(skuNum);
             cartInfo.setUserId(userId);
+            cartInfo.setSkuId(skuId);
             //根据用户id和skuId查询唯一的购物车信息，如果为null则进行添加，如果有值则修改数量
             QueryWrapper<CartInfo> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("user_id",userId);
@@ -60,8 +57,11 @@ public class CartServiceImpl implements CartService {
                 //将之前的sku商品数量和再次点击加入购物车的sku商品数量相加得到现有的
                 BigDecimal add = new BigDecimal(skuNum.toString()).add(new BigDecimal(skuNumNew.toString()));
                 cartInfo.setSkuNum(add.intValue());
+                cartInfo.setImgUrl(skuInfo.getSkuDefaultImg());
                 cartInfo.setSkuPrice(skuInfo.getPrice());
                 cartInfo.setCartPrice(add.multiply(new BigDecimal(skuInfo.getPrice().toString())));
+                cartInfo.setIsChecked(1);
+                cartInfo.setSkuName(skuInfo.getSkuName());
                 cartInfo.setId(cartInfoResult.getId());
                 cartMapper.updateById(cartInfo);
             }
@@ -137,28 +137,59 @@ public class CartServiceImpl implements CartService {
 
     //更改购物车状态
     @Override
-    public void ischeckCart(Long skuId, Integer isChecked,String userId) {
-        QueryWrapper<CartInfo> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("sku_id",skuId);
-        queryWrapper.eq("user_id",userId);
-        CartInfo cartInfo = cartMapper.selectOne(queryWrapper);
-        cartInfo.setIsChecked(isChecked);
-        cartMapper.updateById(cartInfo);
-        //更新缓存
-        CartInfo cartCache = (CartInfo) redisTemplate.opsForHash().get(RedisConst.USER_KEY_PREFIX + cartInfo.getUserId() + RedisConst.USER_CART_KEY_SUFFIX, cartInfo.getSkuId().toString());
-        cartCache.setIsChecked(isChecked);
-        redisTemplate.opsForHash().put(RedisConst.USER_KEY_PREFIX + cartInfo.getUserId() + RedisConst.USER_CART_KEY_SUFFIX, cartInfo.getSkuId().toString(),cartCache);
+    public void ischeckCart(Long skuId, Integer isChecked,String userId,String userTempId) {
+        if(!StringUtils.isEmpty(userId)){
+            QueryWrapper<CartInfo> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("sku_id",skuId);
+            queryWrapper.eq("user_id",userId);
+            CartInfo cartInfo = cartMapper.selectOne(queryWrapper);
+            cartInfo.setIsChecked(isChecked);
+            cartMapper.updateById(cartInfo);
+            //更新缓存
+            CartInfo cartCache = (CartInfo) redisTemplate.opsForHash().get(RedisConst.USER_KEY_PREFIX + cartInfo.getUserId() + RedisConst.USER_CART_KEY_SUFFIX, cartInfo.getSkuId().toString());
+            cartCache.setIsChecked(isChecked);
+            redisTemplate.opsForHash().put(RedisConst.USER_KEY_PREFIX + cartInfo.getUserId() + RedisConst.USER_CART_KEY_SUFFIX, cartInfo.getSkuId().toString(),cartCache);
+        }
+        if(StringUtils.isEmpty(userId) && !StringUtils.isEmpty(userTempId)){
+            //处于临时用户未登录状态
+            CartInfo cartInfoTemp = (CartInfo) redisTemplate.opsForHash().get("userTemp:" + userTempId + ":cart", skuId+"");
+            if(cartInfoTemp!=null){
+                cartInfoTemp.setIsChecked(isChecked);
+            }
+            redisTemplate.opsForHash().put("userTemp:" + userTempId + ":cart", skuId+"",cartInfoTemp);
+        }
     }
 
     //删除购物车商品
     @Override
-    public void deleteCart(Long skuId, String userId) {
+    public void deleteCart(Long skuId, String userId,String userTempId) {
+        if(!StringUtils.isEmpty(userId)){
+            QueryWrapper<CartInfo> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("sku_id",skuId);
+            queryWrapper.eq("user_id",userId);
+            cartMapper.delete(queryWrapper);
+            //删除缓存
+            redisTemplate.opsForHash().delete(RedisConst.USER_KEY_PREFIX+userId+RedisConst.USER_CART_KEY_SUFFIX,skuId+"");
+        }
+        if(StringUtils.isEmpty(userId) && !StringUtils.isEmpty(userTempId)){
+            //临时用户、未登录状态
+            redisTemplate.opsForHash().delete("userTemp:"+userTempId+":cart",skuId+"");
+        }
+    }
+
+    //获取选中状态下的商品清单
+    @Override
+    public List<CartInfo> cartListInner(String userId) {
         QueryWrapper<CartInfo> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("sku_id",skuId);
         queryWrapper.eq("user_id",userId);
-        cartMapper.delete(queryWrapper);
-        //删除缓存
-        redisTemplate.opsForHash().delete(RedisConst.USER_KEY_PREFIX+userId+RedisConst.USER_CART_KEY_SUFFIX,skuId.toString());
+        queryWrapper.eq("is_checked",1);
+        List<CartInfo> cartInfoList = cartMapper.selectList(queryWrapper);
+        for (CartInfo cartInfo : cartInfoList) {
+            Long skuId = cartInfo.getSkuId();
+            BigDecimal price = productFeignClient.getPrice(skuId);
+            cartInfo.setSkuPrice(price);
+        }
+        return cartInfoList;
     }
 
     //用户登录后调用此方法将临时数据合并

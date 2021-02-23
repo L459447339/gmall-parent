@@ -38,19 +38,28 @@ public class CartApiController {
 
     //修改购物车选中状态
     @RequestMapping("checkCart/{skuId}/{isChecked}")
-    public Result ischeckCart(@PathVariable("skuId") Long skuId,@PathVariable("isChecked") Integer isChecked){
-        //模拟用户id
-        String userId = "12";
-        cartService.ischeckCart(skuId,isChecked,userId);
+    public Result ischeckCart(@PathVariable("skuId") Long skuId,@PathVariable("isChecked") Integer isChecked,HttpServletRequest request){
+        //从请求头中获取userId和userTempId
+        String userId = request.getHeader("userId");
+        String userTempId = request.getHeader("userTempId");
+        cartService.ischeckCart(skuId,isChecked,userId,userTempId);
         return Result.ok();
     }
 
     //删除购物车商品
     @DeleteMapping("deleteCart/{skuId}")
-    public Result deleteCart(@PathVariable("skuId") Long skuId){
-        //模拟用户id
-        String userId = "12";
-        cartService.deleteCart(skuId,userId);
+    public Result deleteCart(@PathVariable("skuId") Long skuId,HttpServletRequest request){
+        //从请求头中获取userId和userTempId
+        String userId = request.getHeader("userId");
+        String userTempId = request.getHeader("userTempId");
+        cartService.deleteCart(skuId,userId,userTempId);
         return Result.ok();
+    }
+
+    //获取商品清单，购物车选中状态下的
+    @RequestMapping("inner/cartListInner/{userId}")
+    List<CartInfo> cartListInner(@PathVariable("userId") String userId){
+        List<CartInfo> cartInfoList = cartService.cartListInner(userId);
+        return cartInfoList;
     }
 }

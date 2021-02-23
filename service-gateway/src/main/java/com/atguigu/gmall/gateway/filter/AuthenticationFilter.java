@@ -61,11 +61,22 @@ public class AuthenticationFilter implements GlobalFilter {
         String userTempId = getCookieVal(request, "userTempId");
         //获取token
         String token = getCookieVal(request,"token");
-        //验证token
+        //验证token返回userId
         String userId = "";
         if(!StringUtils.isEmpty(token)){
             Map<String, Object> verifyMap = userFeignClient.verify(token);
             userId = (String) verifyMap.get("userId");
+        }
+
+        //需要登录的页面但不是黑白名单的
+        if(antPathMatcher.match("**/auth/**",uri)){
+            //验证userId是否未空，如果为空就踢回登录页面
+            if(StringUtils.isEmpty(userId)){
+                response.setStatusCode(HttpStatus.SEE_OTHER);
+                response.getHeaders().set(HttpHeaders.LOCATION,"http://passport.gmall.com/login?ReturnUrl="+uri);
+                Mono<Void> mono = response.setComplete();
+                return mono;
+            }
         }
 
         //白名单

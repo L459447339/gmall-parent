@@ -10,7 +10,9 @@ public interface CartService {
 
     List<CartInfo> cartList(String userId,String userTempId);
 
-    void ischeckCart(Long skuId, Integer isChecked,String userId);
+    void ischeckCart(Long skuId, Integer isChecked,String userId,String userTempId);
 
-    void deleteCart(Long skuId, String userId);
+    void deleteCart(Long skuId, String userId,String userTempId);
+
+    List<CartInfo> cartListInner(String userId);
 }

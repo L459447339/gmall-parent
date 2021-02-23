@@ -1,6 +1,7 @@
 package com.atguigu.gmall.user.controller;
 
 import com.atguigu.gmall.common.result.Result;
+import com.atguigu.gmall.user.UserAddress;
 import com.atguigu.gmall.user.UserInfo;
 import com.atguigu.gmall.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -58,14 +60,14 @@ public class UserApiController {
         return null;
     }
 
+    //获取用户守护地址接口
+    @RequestMapping("getUserAddress/{userId}")
+    List<UserAddress> getUserAddress(@PathVariable("userId") String userId){
+        List<UserAddress> userAddressList = userService.getUserAddress(userId);
+        return userAddressList;
+    }
 
-//    @RequestMapping("trade")
-//    void trade(HttpServletRequest request){
-//        String userId = request.getHeader("userId");
-//        String userTempId = request.getHeader("userTempId");
-//        System.out.println(userId);
-//        System.out.println(userTempId);
-//    }
+
 
 }
 

@@ -2,7 +2,9 @@ package com.atguigu.gmall.user.service.impl;
 
 import com.atguigu.gmall.common.util.MD5;
 import com.atguigu.gmall.constant.RedisConst;
+import com.atguigu.gmall.user.UserAddress;
 import com.atguigu.gmall.user.UserInfo;
+import com.atguigu.gmall.user.mapper.UserAddressMapper;
 import com.atguigu.gmall.user.mapper.UserInfoMapper;
 import com.atguigu.gmall.user.service.UserService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -13,6 +15,7 @@ import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -25,6 +28,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     RedisTemplate redisTemplate;
+
+    @Autowired
+    UserAddressMapper userAddressMapper;
 
     //根据用户名和密码查询
     @Override
@@ -67,5 +73,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public void logout(String token) {
         redisTemplate.delete(RedisConst.USER_KEY_PREFIX + token);
+    }
+
+    @Override
+    public List<UserAddress> getUserAddress(String userId) {
+        QueryWrapper<UserAddress> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id",userId);
+        List<UserAddress> userAddressList = userAddressMapper.selectList(queryWrapper);
+        return userAddressList;
     }
 }
