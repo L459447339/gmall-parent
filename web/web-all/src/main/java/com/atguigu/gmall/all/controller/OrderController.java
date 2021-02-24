@@ -82,11 +82,4 @@ public class OrderController {
         return "order/trade.html";
     }
 
-    //跳转到支付页面
-    @RequestMapping("pay.html")
-    public String pay(String orderId,Model model){
-        model.addAttribute("orderId",orderId);
-        return "payment/pay";
-    }
-
 }

@@ -8,4 +8,6 @@ public interface OrderService {
     String genTradeNo(String userId);
 
     boolean checkTradeNo(String tradeNo, String userId);
+
+    OrderInfo getOrderById(Long orderId);
 }

@@ -69,7 +69,7 @@ public class AuthenticationFilter implements GlobalFilter {
         }
 
         //需要登录的页面但不是黑白名单的
-        if(antPathMatcher.match("**/auth/**",uri)){
+        if(antPathMatcher.match("**/auth/**",uri)||antPathMatcher.match("**/alipay/**",uri)){
             //验证userId是否未空，如果为空就踢回登录页面
             if(StringUtils.isEmpty(userId)){
                 response.setStatusCode(HttpStatus.SEE_OTHER);

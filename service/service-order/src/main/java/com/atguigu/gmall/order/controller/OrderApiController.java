@@ -45,4 +45,11 @@ public class OrderApiController {
         String tradeNo = orderService.genTradeNo(userId);
         return tradeNo;
     }
+
+    //根据orderId查询订单信息
+    @RequestMapping("auth/getOrderById/{orderId}")
+    OrderInfo getOrderById(@PathVariable("orderId") Long orderId){
+        OrderInfo orderInfo = orderService.getOrderById(orderId);
+        return orderInfo;
+    }
 }
