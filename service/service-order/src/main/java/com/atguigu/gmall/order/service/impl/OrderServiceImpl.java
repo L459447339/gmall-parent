@@ -9,6 +9,7 @@ import com.atguigu.gmall.order.OrderInfo;
 import com.atguigu.gmall.order.mapper.OrderDetailMapper;
 import com.atguigu.gmall.order.mapper.OrderInfoMapper;
 import com.atguigu.gmall.order.service.OrderService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,7 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     RedisTemplate redisTemplate;
 
+
     @Override
     public String submitOrder(OrderInfo order) {
         List<OrderDetail> orderDetailList = order.getOrderDetailList();
@@ -45,7 +47,7 @@ public class OrderServiceImpl implements OrderService {
         order.setTotalAmount(totalAmount);
         order.setOrderStatus(OrderStatus.UNPAID.getComment());
         //第三方支付订单编号，全局唯一
-        String outTradeNo = UUID.randomUUID().toString() + System.currentTimeMillis() + "";
+        String outTradeNo = UUID.randomUUID().toString()+System.currentTimeMillis() + "";
         order.setOutTradeNo(outTradeNo);
         order.setCreateTime(new Date());
         Calendar calendar = Calendar.getInstance();
@@ -56,6 +58,7 @@ public class OrderServiceImpl implements OrderService {
         order.setProcessStatus(ProcessStatus.UNPAID.getComment());
         order.setPaymentWay(PaymentWay.ONLINE.getComment());
         order.setImgUrl(orderDetailList.get(0).getImgUrl());
+        order.setOrderComment("iphone12红色");
         //验证库存和商品价格与后台数据是否一致
         //TODO
         orderInfoMapper.insert(order);
@@ -91,6 +94,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderInfo getOrderById(Long orderId) {
         OrderInfo orderInfo = orderInfoMapper.selectById(orderId);
+        //将OrderDatail设置到orderInfo中
+        QueryWrapper<OrderDetail> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("order_id",orderId);
+        List<OrderDetail> orderDetailList = orderDetailMapper.selectList(queryWrapper);
+        orderInfo.setOrderDetailList(orderDetailList);
         return orderInfo;
     }
 }
