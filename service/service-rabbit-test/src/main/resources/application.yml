@@ -1,0 +1,22 @@
+server:
+  port: 80
+
+spring:
+  rabbitmq:
+    host: 192.168.200.128
+    port: 5672
+    username: guest
+    password: guest
+    publisher-returns: true
+    publisher-confirm-type: simple
+    listener:
+      simple:
+        acknowledge-mode: manual  #手动接收消息
+        prefetch: 1  #每次取一条消息
+  redis:
+    host: 192.168.200.128
+    port: 6379
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.200.128
