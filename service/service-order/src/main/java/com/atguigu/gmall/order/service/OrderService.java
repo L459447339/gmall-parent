@@ -12,4 +12,6 @@ public interface OrderService {
     OrderInfo getOrderById(Long orderId);
 
     void updateStatus(String msg);
+
+    void updateWareStatus(Long orderId, String status);
 }

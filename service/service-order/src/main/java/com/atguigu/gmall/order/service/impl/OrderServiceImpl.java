@@ -13,6 +13,9 @@ import com.atguigu.gmall.order.mapper.OrderDetailMapper;
 import com.atguigu.gmall.order.mapper.OrderInfoMapper;
 import com.atguigu.gmall.order.service.OrderService;
 import com.atguigu.gmall.rabbit.constant.MqConst;
+import com.atguigu.gmall.ware.TaskStatus;
+import com.atguigu.gmall.ware.WareOrderTask;
+import com.atguigu.gmall.ware.WareOrderTaskDetail;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,14 +119,49 @@ public class OrderServiceImpl implements OrderService {
     public void updateStatus(String msg) {
         Map<String,Object> map = JSON.parseObject(msg, Map.class);
         Long orderId = Long.parseLong(map.get("orderId")+"");
-        OrderInfo orderInfo = orderInfoMapper.selectById(orderId);
+        OrderInfo orderInfo = getOrderById(orderId);
         orderInfo.setOrderStatus(OrderStatus.PAID.getComment());
         orderInfo.setProcessStatus(ProcessStatus.PAID.getComment());
         orderInfoMapper.updateById(orderInfo);
+        //将orderInfo对象封装为wareOrderTask对象
+        WareOrderTask wareOrderTask = new WareOrderTask();
         //发送消息锁定库存
-        //TODO
-        Map<String, Object> mapMessage = new HashMap<>();
-        String mapMessageToString = JSON.toJSONString(mapMessage);
-        rabbitTemplate.convertAndSend(MqConst.EXCHANGE_DIRECT_WARE_ORDER,MqConst.ROUTING_WARE_ORDER,mapMessageToString);
+        List<OrderDetail> orderDetailList = orderInfo.getOrderDetailList();
+        List<WareOrderTaskDetail> orderTaskDetails = new ArrayList<>();
+        wareOrderTask.setConsignee(orderInfo.getConsignee());
+        wareOrderTask.setConsigneeTel(orderInfo.getConsigneeTel());
+        wareOrderTask.setCreateTime(new Date());
+        wareOrderTask.setDeliveryAddress(orderInfo.getDeliveryAddress());
+        wareOrderTask.setOrderBody(orderInfo.getOrderComment());
+        wareOrderTask.setOrderComment(orderInfo.getOrderComment());
+        wareOrderTask.setOrderId(orderId+"");
+        wareOrderTask.setPaymentWay("1");
+        wareOrderTask.setTaskStatus(TaskStatus.PAID.getComment());
+        wareOrderTask.setTrackingNo(orderInfo.getTrackingNo());
+        for (OrderDetail orderDetail : orderDetailList) {
+            WareOrderTaskDetail wareOrderTaskDetail = new WareOrderTaskDetail();
+            wareOrderTaskDetail.setSkuId(orderDetail.getSkuId()+"");
+            wareOrderTaskDetail.setSkuName(orderDetail.getSkuName());
+            wareOrderTaskDetail.setSkuNum(orderDetail.getSkuNum());
+            orderTaskDetails.add(wareOrderTaskDetail);
+        }
+        wareOrderTask.setDetails(orderTaskDetails);
+        String orderTaskJson = JSON.toJSONString(wareOrderTask);
+        rabbitTemplate.convertAndSend(MqConst.EXCHANGE_DIRECT_WARE_STOCK,MqConst.ROUTING_WARE_STOCK,orderTaskJson);
+    }
+
+    //修改状态为已出货
+    @Override
+    public void updateWareStatus(Long orderId, String status) {
+        if(!StringUtils.isEmpty(status)){
+            OrderInfo orderInfo = getOrderById(orderId);
+            if(TaskStatus.DEDUCTED.name().equals(status)){
+                orderInfo.setOrderStatus(OrderStatus.WAITING_DELEVER.getComment());
+                orderInfo.setProcessStatus(ProcessStatus.WAITING_DELEVER.getComment());
+                orderInfoMapper.updateById(orderInfo);
+                //通知物流系统...
+                //TODO
+            }
+        }
     }
 }

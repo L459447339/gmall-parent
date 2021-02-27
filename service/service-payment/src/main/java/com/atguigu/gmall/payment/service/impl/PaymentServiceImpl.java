@@ -94,7 +94,7 @@ public class PaymentServiceImpl implements PaymentService {
         PaymentInfo paymentInfo = paymentInfoMapper.selectOne(queryWrapper);
         paymentInfo.setTradeNo(tradeNo);
         paymentInfo.setCallbackTime(new Date());
-        paymentInfo.setPaymentStatus(PaymentStatus.PAID.toString());
+        paymentInfo.setPaymentStatus(PaymentStatus.PAID.name());
         paymentInfo.setCallbackContent(callbackContent);
         paymentInfoMapper.updateById(paymentInfo);
         //发送消息修改订单状态
