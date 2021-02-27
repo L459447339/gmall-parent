@@ -72,7 +72,12 @@ public class RabbitController {
         return "创建binding-demo01成功";
     }
 
-
+    //发送延迟消息
+    @RequestMapping("sendDalayMsg")
+    public String sendDalayMsg(){
+        rabbitService.sendDalayMsg();
+        return "发送sendDalayMsg";
+    }
 
 
 }

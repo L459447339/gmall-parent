@@ -28,6 +28,18 @@ public class RabbitMQListener {
         long deliveryTag = message.getMessageProperties().getDeliveryTag();
         //手动确认消息，第二个参数表示是否批量确认
         channel.basicAck(deliveryTag,true);
+        //手动回滚消息，第二个参数表示是否批量拒签，第三个参数表示是否将消息退回消息队列，如果是false将丢弃消息
+        channel.basicNack(deliveryTag,false,false);
     }
 
+    @RabbitListener(queues = "queue.delay.1")
+    public void receiveDdalayMsg(Message message,Channel channel) throws Exception{
+        byte[] body = message.getBody();
+        String msg = new String(body);
+        long deliveryTag = message.getMessageProperties().getDeliveryTag();
+            //手动确认
+            channel.basicAck(deliveryTag,true);
+            //回滚
+                channel.basicNack(deliveryTag,false,false);
+    }
 }
