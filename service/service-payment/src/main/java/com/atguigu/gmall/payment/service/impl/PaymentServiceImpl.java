@@ -16,7 +16,9 @@ import com.atguigu.gmall.payment.PaymentInfo;
 import com.atguigu.gmall.payment.config.AlipayClientConfig;
 import com.atguigu.gmall.payment.mapper.PaymentInfoMapper;
 import com.atguigu.gmall.payment.service.PaymentService;
+import com.atguigu.gmall.rabbit.constant.MqConst;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +38,9 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Autowired
     OrderFeignClient orderFeignClient;
+
+    @Autowired
+    RabbitTemplate rabbitTemplate;
 
     //生成支付宝二维码,此时支付宝无状态
     @Override
@@ -92,6 +97,12 @@ public class PaymentServiceImpl implements PaymentService {
         paymentInfo.setPaymentStatus(PaymentStatus.PAID.toString());
         paymentInfo.setCallbackContent(callbackContent);
         paymentInfoMapper.updateById(paymentInfo);
+        //发送消息修改订单状态
+        Map<String,Object> map = new HashMap<>();
+        map.put("orderId",paymentInfo.getOrderId());
+        String msg = JSON.toJSONString(map);
+        rabbitTemplate.convertAndSend(MqConst.EXCHANGE_DIRECT_PAYMENT_PAY,MqConst.ROUTING_PAYMENT_PAY,msg);
+        System.out.println("发送修改信息状态消息成功");
     }
 
     @Override

@@ -19,7 +19,7 @@ public class DelayedMqConfig {
 
     @Bean
     public Queue delayQeue1() {
-// 第一个参数是创建的queue的名字，第二个参数是是否支持持久化
+    // 第一个参数是创建的queue的名字，第二个参数是是否支持持久化
         return new Queue(queue_delay_1, true);
     }
 

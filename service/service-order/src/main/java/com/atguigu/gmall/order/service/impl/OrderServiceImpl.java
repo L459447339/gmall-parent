@@ -1,5 +1,8 @@
 package com.atguigu.gmall.order.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.atguigu.gmall.cart.CartInfo;
+import com.atguigu.gmall.cart.client.CartFeignClient;
 import com.atguigu.gmall.constant.RedisConst;
 import com.atguigu.gmall.enums.OrderStatus;
 import com.atguigu.gmall.enums.PaymentWay;
@@ -9,17 +12,16 @@ import com.atguigu.gmall.order.OrderInfo;
 import com.atguigu.gmall.order.mapper.OrderDetailMapper;
 import com.atguigu.gmall.order.mapper.OrderInfoMapper;
 import com.atguigu.gmall.order.service.OrderService;
+import com.atguigu.gmall.rabbit.constant.MqConst;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -33,6 +35,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     RedisTemplate redisTemplate;
+
+    @Autowired
+    RabbitTemplate rabbitTemplate;
+
+    @Autowired
+    CartFeignClient cartFeignClient;
 
 
     @Override
@@ -68,7 +76,8 @@ public class OrderServiceImpl implements OrderService {
             orderDetailMapper.insert(orderDetail);
         }
         //添加成功后将原购物车的商品信息删除
-        //TODO
+        Long userId = order.getUserId();
+        cartFeignClient.deleteCartOrder(userId);
         return orderId+"";
     }
 
@@ -100,5 +109,21 @@ public class OrderServiceImpl implements OrderService {
         List<OrderDetail> orderDetailList = orderDetailMapper.selectList(queryWrapper);
         orderInfo.setOrderDetailList(orderDetailList);
         return orderInfo;
+    }
+
+    //修改订单状态为已支付
+    @Override
+    public void updateStatus(String msg) {
+        Map<String,Object> map = JSON.parseObject(msg, Map.class);
+        Long orderId = Long.parseLong(map.get("orderId")+"");
+        OrderInfo orderInfo = orderInfoMapper.selectById(orderId);
+        orderInfo.setOrderStatus(OrderStatus.PAID.getComment());
+        orderInfo.setProcessStatus(ProcessStatus.PAID.getComment());
+        orderInfoMapper.updateById(orderInfo);
+        //发送消息锁定库存
+        //TODO
+        Map<String, Object> mapMessage = new HashMap<>();
+        String mapMessageToString = JSON.toJSONString(mapMessage);
+        rabbitTemplate.convertAndSend(MqConst.EXCHANGE_DIRECT_WARE_ORDER,MqConst.ROUTING_WARE_ORDER,mapMessageToString);
     }
 }

@@ -69,4 +69,9 @@ public class CartApiController {
         cartService.mergeCart(userId,userTempId);
     }
 
+    //删除已生成订单的购物车商品
+    @RequestMapping("inner/deleteCartOrder/{userId}")
+    void deleteCartOrder(@PathVariable("userId") Long userId){
+        cartService.deleteCartOrder(userId);
+    }
 }

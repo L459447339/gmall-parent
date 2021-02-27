@@ -6,6 +6,7 @@ import com.atguigu.gmall.user.UserAddress;
 import com.atguigu.gmall.user.UserInfo;
 import com.atguigu.gmall.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
@@ -41,7 +42,9 @@ public class UserApiController {
             //登录成功，合并购物车临时数据
             String userId = (String) map.get("userId");
             String userTempId = request.getHeader("userTempId");
-            cartFeignClient.mergeCart(userId,userTempId);
+            if(!StringUtils.isEmpty(userTempId)){
+                cartFeignClient.mergeCart(userId,userTempId);
+            }
             return Result.ok(map).message("登录成功");
         }
     }

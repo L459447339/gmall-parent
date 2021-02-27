@@ -17,6 +17,15 @@ spring:
   redis:
     host: 192.168.200.128
     port: 6379
+  rabbitmq:
+    host: 192.168.200.128
+    port: 5672
+    publisher-returns: true
+    publisher-confirm-type: simple
+    listener:
+      direct:
+        acknowledge-mode: manual
+        prefetch: 1
 # feign超时
 feign:
   client:
@@ -24,6 +33,7 @@ feign:
       default:
         connectTimeout: 600000
         readTimeout: 600000
+
 
 #mybatis-plus
 mybatis-plus:

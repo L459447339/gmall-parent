@@ -10,4 +10,6 @@ public interface OrderService {
     boolean checkTradeNo(String tradeNo, String userId);
 
     OrderInfo getOrderById(Long orderId);
+
+    void updateStatus(String msg);
 }

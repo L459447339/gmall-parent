@@ -229,4 +229,12 @@ public class CartServiceImpl implements CartService {
         //删除临时数据
         redisTemplate.delete("userTemp:" + userTempId + ":cart");
     }
+
+    @Override
+    public void deleteCartOrder(Long userId) {
+        QueryWrapper<CartInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id",userId);
+        queryWrapper.eq("is_checked",1);
+        cartMapper.delete(queryWrapper);
+    }
 }
