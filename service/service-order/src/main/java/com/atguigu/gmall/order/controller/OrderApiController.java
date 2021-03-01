@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("api/order")
@@ -52,4 +55,12 @@ public class OrderApiController {
         OrderInfo orderInfo = orderService.getOrderById(orderId);
         return orderInfo;
     }
+
+    //查询order列表
+    @RequestMapping("auth/{page}/{limit}")
+    public Result getOrderList(@PathVariable("page") Long page,@PathVariable("limit") Long limit){
+        Map<String,Object> map = orderService.getOrderList(page,limit);
+        return Result.ok(map);
+    }
+
 }

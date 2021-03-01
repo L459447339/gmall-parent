@@ -17,6 +17,8 @@ import com.atguigu.gmall.ware.TaskStatus;
 import com.atguigu.gmall.ware.WareOrderTask;
 import com.atguigu.gmall.ware.WareOrderTaskDetail;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -46,6 +48,7 @@ public class OrderServiceImpl implements OrderService {
     CartFeignClient cartFeignClient;
 
 
+    //提交订单
     @Override
     public String submitOrder(OrderInfo order) {
         List<OrderDetail> orderDetailList = order.getOrderDetailList();
@@ -147,6 +150,7 @@ public class OrderServiceImpl implements OrderService {
         }
         wareOrderTask.setDetails(orderTaskDetails);
         String orderTaskJson = JSON.toJSONString(wareOrderTask);
+        //发送消息需要库存监听锁定库存
         rabbitTemplate.convertAndSend(MqConst.EXCHANGE_DIRECT_WARE_STOCK,MqConst.ROUTING_WARE_STOCK,orderTaskJson);
     }
 
@@ -163,5 +167,17 @@ public class OrderServiceImpl implements OrderService {
                 //TODO
             }
         }
+    }
+
+    @Override
+    public Map<String, Object> getOrderList(Long page, Long limit) {
+        IPage<OrderInfo> iPage = new Page<>(page,limit);
+        IPage<OrderInfo> infoIPage = orderInfoMapper.selectPage(iPage, null);
+        List<OrderInfo> records = infoIPage.getRecords();
+        long pages = infoIPage.getPages();
+        Map<String, Object> map = new HashMap<>();
+        map.put("records",records);
+        map.put("pages",pages);
+        return map;
     }
 }

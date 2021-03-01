@@ -42,10 +42,10 @@ spring:
           uri: lb://service-payment
           predicates:
             - Path=/*/payment/**
-#        - id: service-activity
-#          uri: lb://service-activity
-#          predicates:
-#            - Path=/*/activity/**
+        - id: service-activity
+          uri: lb://service-activity
+          predicates:
+            - Path=/*/activity/**
 #          filters:
 #            - name: RequestRateLimiter #filter名称必须是RequestRateLimiter
 #              args:

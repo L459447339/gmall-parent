@@ -235,6 +235,11 @@ public class CartServiceImpl implements CartService {
         QueryWrapper<CartInfo> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("user_id",userId);
         queryWrapper.eq("is_checked",1);
+        List<CartInfo> cartInfoList = cartMapper.selectList(queryWrapper);
         cartMapper.delete(queryWrapper);
+        for (CartInfo cartInfo : cartInfoList) {
+            Long skuId = cartInfo.getSkuId();
+            redisTemplate.opsForHash().delete(RedisConst.USER_KEY_PREFIX+userId+RedisConst.USER_CART_KEY_SUFFIX,skuId);
+        }
     }
 }
