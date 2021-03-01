@@ -2,8 +2,10 @@ package com.atguigu.gmall.activity.controller;
 
 import com.atguigu.gmall.activity.SeckillGoods;
 import com.atguigu.gmall.activity.service.ActivityService;
+import com.atguigu.gmall.activity.util.CacheHelper;
 import com.atguigu.gmall.common.result.Result;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,4 +30,13 @@ public class SeckillController {
         activityService.seckillGoodsPut();
         return Result.ok();
     }
+
+    //获取秒杀商品状态
+    @RequestMapping("getGoodsStatus/{skuId}")
+    public Result getGoodsStatus(@PathVariable("skuId") Long skuId){
+        String status = (String) CacheHelper.get(skuId + "");
+        return Result.ok(status);
+    }
+
+
 }
