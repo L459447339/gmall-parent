@@ -21,7 +21,7 @@ public class ActivityServiceImpl implements ActivityService {
 
     @Override
     public List<SeckillGoods> getSeckillGoodsList() {
-        List<SeckillGoods> seckillGoodsList = seckillGoodsMapper.selectList(null);
+        List<SeckillGoods> seckillGoodsList = (List<SeckillGoods>)redisTemplate.opsForHash().values(RedisConst.SECKILL_GOODS);
         return seckillGoodsList;
     }
 
@@ -40,5 +40,12 @@ public class ActivityServiceImpl implements ActivityService {
             String status = seckillGoods.getStockCount() > 0 ? "1" : "0";
             redisTemplate.convertAndSend("seckillpush", seckillGoods.getSkuId() + ":" + status);
         }
+    }
+
+    //从redis中获取秒杀商品详情
+    @Override
+    public SeckillGoods getSeckillGoods(Long skuId) {
+        SeckillGoods seckillGoods = (SeckillGoods)redisTemplate.opsForHash().get(RedisConst.SECKILL_GOODS, skuId + "");
+        return seckillGoods;
     }
 }

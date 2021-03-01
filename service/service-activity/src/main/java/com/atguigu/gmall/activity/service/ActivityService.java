@@ -8,4 +8,6 @@ public interface ActivityService {
     List<SeckillGoods> getSeckillGoodsList();
 
     void seckillGoodsPut();
+
+    SeckillGoods getSeckillGoods(Long skuId);
 }

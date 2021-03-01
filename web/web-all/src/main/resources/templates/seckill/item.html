@@ -34,14 +34,14 @@
 					<div class="zoom">
 						<!--默认第一个预览-->
 						<div id="preview" class="spec-preview">
-							<span class="jqzoom"><img th:jqimg="${item.skuDefaultImg}" th:src="${item.skuDefaultImg}" width="400" height="400"/></span>
+							<span class="jqzoom"><img th:jqimg="${item?.skuDefaultImg}" th:src="${item?.skuDefaultImg}" width="400" height="400"/></span>
 						</div>
 					</div>
 
 				</div>
 				<div class="fr itemInfo-wrap">
 					<div class="sku-name">
-						<h4 th:text="${item.skuName}">三星</h4>
+						<h4 th:text="${item?.skuName}">三星</h4>
 					</div>
 					<div class="news">
 						<span><img src="/img/_/clock.png"/>品优秒杀</span>
@@ -55,11 +55,11 @@
 							</div>
 							<div class="fl price">
 								<i>¥</i>
-								<em th:text="${item.costPrice}">0</em>
-								<span th:text="'原价：'+${item.price}">原价：0</span>
+								<em th:text="${item?.costPrice}">0</em>
+								<span th:text="'原价：'+${item?.price}">原价：0</span>
 							</div>
 							<div class="fr remark">
-								剩余库存：<span th:text="${item.stockCount}">0</span>
+								剩余库存：<span th:text="${item?.stockCount}">0</span>
 							</div>
 						</div>
 						<div class="summary-wrap">

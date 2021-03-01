@@ -18,6 +18,7 @@ public class SeckillController {
     @Autowired
     ActivityService activityService;
 
+    //查询秒杀商品列表
     @RequestMapping("getSeckillGoodsList")
     List<SeckillGoods> getSeckillGoodsList(){
         List<SeckillGoods> seckillGoodsList = activityService.getSeckillGoodsList();
@@ -38,5 +39,9 @@ public class SeckillController {
         return Result.ok(status);
     }
 
-
+    @RequestMapping("getSeckillGoods/{skuId}")
+    SeckillGoods getSeckillGoods(@PathVariable("skuId") Long skuId){
+        SeckillGoods seckillGoods = activityService.getSeckillGoods(skuId);
+        return seckillGoods;
+    }
 }
