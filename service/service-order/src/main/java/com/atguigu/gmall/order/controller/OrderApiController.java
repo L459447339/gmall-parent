@@ -63,4 +63,11 @@ public class OrderApiController {
         return Result.ok(map);
     }
 
+    //生成秒杀商品订单
+    @RequestMapping("auth/submitOrderSeckill")
+    String submitOrderSeckill(@RequestBody OrderInfo order){
+        String orderId = orderService.submitOrder(order);
+        return orderId;
+    }
+
 }

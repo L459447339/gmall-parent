@@ -206,8 +206,6 @@
         methods: {
             saveOrder() {
                 seckill.seckillOrder(this.skuId, this.skuIdStr).then(response => {
-                    debugger
-                    console.log(JSON.stringify(response))
                     if(response.data.code == 200) {
                         this.isCheckOrder = true
                     } else {
@@ -220,12 +218,9 @@
 
             checkOrder() {
                 if(!this.isCheckOrder) return
-
                 seckill.checkOrder(this.skuId).then(response => {
-                     debugger
                     this.data = response.data.data
                     this.code = response.data.code
-                    console.log(JSON.stringify(this.data))
                     //排队中
                     if(response.data.code == 211) {
                         this.show = 1

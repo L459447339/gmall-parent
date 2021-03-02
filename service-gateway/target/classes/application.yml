@@ -87,7 +87,7 @@ spring:
             - Host=activity.gmall.com
       # 验证url 用户如果未登录的情况下，不允许访问的哪些控制！
 authUrls:
-   url: trade.html,myOrder.html
+   url: trade.html,myOrder.html,seckill.html
 
 # feign超时
 feign:

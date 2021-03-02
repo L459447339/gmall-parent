@@ -1,5 +1,6 @@
 package com.atguigu.gmall.activity.client;
 
+import com.atguigu.gmall.activity.OrderRecode;
 import com.atguigu.gmall.activity.SeckillGoods;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,4 +16,7 @@ public interface ActivityFeignClient {
 
     @RequestMapping("api/activity/seckill/getSeckillGoods/{skuId}")
     SeckillGoods getSeckillGoods(@PathVariable("skuId") Long skuId);
+
+    @RequestMapping("api/activity/seckill/getOrderRecode/{userId}")
+    OrderRecode getOrderRecode(@PathVariable("userId") String userId);
 }
